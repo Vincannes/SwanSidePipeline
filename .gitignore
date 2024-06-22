@@ -1,4 +1,12 @@
-Publisher/
+SwanSideNuke/
+SwanSidePlugins/ExternalModules/engineio/
+SwanSidePlugins/ExternalModules/ffmpeg/
+SwanSidePlugins/ExternalModules/gazu/
+SwanSidePlugins/ExternalModules/socketio/
+SwanSidePlugins/ExternalModules/zou/
+
+*.exe
+*.rar
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
