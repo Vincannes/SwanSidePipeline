@@ -85,17 +85,15 @@ class Prism_SwanSidePlugins_Functions(object):
         self.prjMng = None
         self.name = "Prism_SwanSidePlugins"
 
-        print(self.core.requestedApp)
         if not self.isActive():
             return
-        self.register()
 
         user_pref_path = core.getUserPrefConfigPath()
         config_file_dict = json.load(open(user_pref_path)).get("globals").get("current project")
         prjName = json.load(open(config_file_dict)).get("globals").get("project_name")
         url = json.load(open(config_file_dict)).get("prjManagement").get("kitsu_url")
-        email = os.getenv("PRISM_KITSU_EMAIL")
-        password = os.getenv("PRISM_KITSU_PASSWORD")
+        email = json.load(open(user_pref_path)).get("kitsu").get("email")
+        password = json.load(open(user_pref_path)).get("kitsu").get("password")
 
         self._publisher = Publisher(prjName, url, email, password)
 
@@ -112,19 +110,6 @@ class Prism_SwanSidePlugins_Functions(object):
         if not self.core.requestedApp in self.APPS:
             return False
         return True
-
-    @err_catcher(name=__name__)
-    def register(self):
-        self.prjMng = self.core.getPlugin("ProjectManagement")
-        if not self.prjMng:
-            self.core.registerCallback("pluginLoaded", self.onPluginLoaded, plugin=self.plugin)
-            return
-        self.prjMng.registerManager(self)
-
-    @err_catcher(name=__name__)
-    def onPluginLoaded(self, plugin):
-        if plugin.pluginName == "ProjectManagement":
-            self.register()
 
     @err_catcher(name=__name__)
     def get_assets(self):

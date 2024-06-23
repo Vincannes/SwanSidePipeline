@@ -99,6 +99,13 @@ class Prism_Kitsu_Functions(object):
         self.core.registerCallback("onWriteNoteWidgetCreated", self.onWriteNoteWidgetCreated, plugin=self.plugin)
         self.prjMng.registerManager(self)
         self.core.registerCallback("onProjectCreationSettingsReloaded", self.onProjectCreationSettingsReloaded, plugin=self.plugin)
+        # SWANSIDE
+        self.core.registerCallback(
+            "userSettings_saveSettings",
+            self.userSettings_saveSettings,
+            plugin=self.plugin,
+        )
+        # ENDSWANSIDE
 
     @err_catcher(name=__name__)
     def unregister(self):
@@ -146,6 +153,20 @@ class Prism_Kitsu_Functions(object):
             {"name": "kitsu_password", "label": "Password", "isSecret": True, "type": "QLineEdit"}
         ]
         return data
+
+    # SWANSIDE
+    @err_catcher(name=__name__)
+    def userSettings_saveSettings(self, origin, settings):
+        auth = self.prjMng.getAuthorization()
+        url = os.getenv("PRISM_KITSU_URL") or auth.get("url")
+        email = os.getenv("PRISM_KITSU_EMAIL") or auth.get("kitsu_email")
+        password = os.getenv("PRISM_KITSU_PASSWORD") or auth.get("kitsu_password")
+
+        if "kitsu" not in settings:
+            settings["kitsu"] = {}
+        settings["kitsu"]["email"] = email
+        settings["kitsu"]["password"] = password
+    # ENDSWANSIDE
 
     @err_catcher(name=__name__)
     def getIconPath(self):
@@ -549,11 +570,6 @@ class Prism_Kitsu_Functions(object):
         email = os.getenv("PRISM_KITSU_EMAIL") or auth.get("kitsu_email")
         password = os.getenv("PRISM_KITSU_PASSWORD") or auth.get("kitsu_password")
 
-        # SWANSIDE
-        os.environ["PRISM_KITSU_URL"] = url
-        os.environ["PRISM_KITSU_EMAIL"] = email
-        os.environ["PRISM_KITSU_PASSWORD"] = password
-        # ENDSWANSIDE
         self.core.users.setUserReadOnly(False)
 
         if not url:
