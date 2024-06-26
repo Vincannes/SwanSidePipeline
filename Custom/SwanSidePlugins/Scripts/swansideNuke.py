@@ -61,7 +61,7 @@ class SwanSideNukePlugins(object):
         )
 
         try:
-            self.parent.process_mov_from_nuke(
+            self.parent.media.process_mov_from_nuke(
                 sequence_path, tmp_mov, first_frame, last_frame
             )
         except Exception as e:

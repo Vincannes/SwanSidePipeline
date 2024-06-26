@@ -47,18 +47,18 @@ class Prism_Cinema4D_Functions(object):
         self.core = core
         self.plugin = plugin
 
-        self.core.registerCallback(
-            "onProjectBrowserStartup", self.onProjectBrowserStartup, plugin=self.plugin
-        )
-        self.core.registerCallback(
-            "onStateManagerOpen", self.onStateManagerOpen, plugin=self.plugin
-        )
-        self.core.registerCallback(
-            "onProjectChanged", self.onProjectChanged, plugin=self.plugin
-        )
-        self.core.registerCallback(
-            "prePlayblast", self.prePlayblast, plugin=self.plugin
-        )
+        # self.core.registerCallback(
+        #     "onProjectBrowserStartup", self.onProjectBrowserStartup, plugin=self.plugin
+        # )
+        # self.core.registerCallback(
+        #     "onStateManagerOpen", self.onStateManagerOpen, plugin=self.plugin
+        # )
+        # self.core.registerCallback(
+        #     "onProjectChanged", self.onProjectChanged, plugin=self.plugin
+        # )
+        # self.core.registerCallback(
+        #     "prePlayblast", self.prePlayblast, plugin=self.plugin
+        # )
 
     @err_catcher(name=__name__)
     def startup(self, origin):

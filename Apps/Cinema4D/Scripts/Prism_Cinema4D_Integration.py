@@ -50,9 +50,11 @@ class Prism_Cinema4D_Integration(object):
         self.plugin = plugin
 
         if platform.system() == "Windows":
-            self.examplePath = (
-                self.core.getWindowsDocumentsPath() + "\\Cinema4D\\2019"
+            self.examplePath = os.path.join(
+                os.environ["userprofile"], "AppData", "Roaming", "Maxon",
+                "Maxime Cinema 4D {}".format("R25_1FE0824E"), "plugins"
             )
+
         elif platform.system() == "Linux":
             userName = (
                 os.environ["SUDO_USER"]
@@ -92,26 +94,32 @@ class Prism_Cinema4D_Integration(object):
             )
             addedFiles = []
 
+            py_c4d_dir = os.path.join(integrationBase, "py-swanside_r25")
+
+            integrationFiles = [os.listdir(py_c4d_dir)]
+            path_to_dir = ""
             initpath = os.path.join(installPath, "scripts", "PrismInit.py")
+            print(initpath)
+            # shutil.copytree(py_c4d_dir, path_to_dir)
 
-            if os.path.exists(initpath):
-                os.remove(initpath)
-
-            if os.path.exists(initpath + "c"):
-                os.remove(initpath + "c")
-
-            origInitFile = os.path.join(integrationBase, "PrismInit.py")
-            shutil.copy2(origInitFile, initpath)
-            addedFiles.append(initpath)
-
-            with open(initpath, "r") as init:
-                initStr = init.read()
-
-            with open(initpath, "w") as init:
-                initStr = initStr.replace(
-                    "PRISMROOT", '"%s"' % self.core.prismRoot.replace("\\", "/")
-                )
-                init.write(initStr)
+            # if os.path.exists(initpath):
+            #     os.remove(initpath)
+            #
+            # if os.path.exists(initpath + "c"):
+            #     os.remove(initpath + "c")
+            #
+            # origInitFile = os.path.join(integrationBase, "PrismInit.py")
+            # shutil.copy2(origInitFile, initpath)
+            # addedFiles.append(initpath)
+            #
+            # with open(initpath, "r") as init:
+            #     initStr = init.read()
+            #
+            # with open(initpath, "w") as init:
+            #     initStr = initStr.replace(
+            #         "PRISMROOT", '"%s"' % self.core.prismRoot.replace("\\", "/")
+            #     )
+            #     init.write(initStr)
 
             if platform.system() in ["Linux", "Darwin"]:
                 for i in addedFiles:

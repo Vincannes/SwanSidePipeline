@@ -164,7 +164,8 @@ class Prism_Kitsu_Functions(object):
 
         if "kitsu" not in settings:
             settings["kitsu"] = {}
-        settings["kitsu"]["email"] = email
+        settings["kitsu"]["url"] = url
+        settings["kitsu"]["password"] = password
         settings["kitsu"]["password"] = password
     # ENDSWANSIDE
 

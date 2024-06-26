@@ -40,7 +40,8 @@ import platform
 from pprint import pprint
 from collections import OrderedDict
 
-from kitsuPublisher import Publisher, EXT_MODULES_PATHS
+from media import Media
+from kitsuPublisher import Publisher
 
 from PrismUtils.Decorators import err_catcher_plugin as err_catcher
 
@@ -96,6 +97,7 @@ class Prism_SwanSidePlugins_Functions(object):
         password = json.load(open(user_pref_path)).get("kitsu").get("password")
 
         self._publisher = Publisher(prjName, url, email, password)
+        self.media = Media()
 
         if self.core.requestedApp == "Nuke":
             from swansideNuke import SwanSideNukePlugins
@@ -147,22 +149,6 @@ class Prism_SwanSidePlugins_Functions(object):
 
         assets = sorted(assets, key=lambda x: self.core.naturalKeys(x["asset"]))
         return assets
-
-    @err_catcher(name=__name__)
-    def get_first_last_frames(self, inputpathdir, inputExt):
-        # self.core.paths.getFrameFromFilename()
-        endNum = None
-        startNum = None
-        pattern = r'\.(\d+)\.[^.]+$'
-        if any([inputExt in ext for ext in [".exr", ".jpg"]]):
-            frames = []
-            for filename in os.listdir(inputpathdir):
-                match = re.search(pattern, filename)
-                if match:
-                    frames.append(int(match.group(1)))
-            startNum = sorted(frames)[0] or 1001
-            endNum = sorted(frames)[-1] or 1001
-        return startNum, endNum
 
     @err_catcher(name=__name__)
     def get_json_files_from_template(self, template_name):
@@ -304,7 +290,7 @@ class Prism_SwanSidePlugins_Functions(object):
                     break
 
         # Get first frame if is not given
-        tmpstartNum, endNum = self.get_first_last_frames(inputpathdir, inputExt)
+        tmpstartNum, endNum = self.media.get_first_last_frames(inputpathdir, inputExt)
         if not isinstance(startNum, int):
             startNum = tmpstartNum
         ## END SWANSIDE
@@ -365,7 +351,7 @@ class Prism_SwanSidePlugins_Functions(object):
         ## SWANSIDE
         if inputExt == ".exr":
             logger.info("Run Nuke processing for %s" % inputExt)
-            return self.process_mov_from_nuke(
+            return self.media.process_mov_from_nuke(
                 inputpath, outputpath, startNum, endNum, self.core.requestedApp == "Blender"
             )
         ## END SWANSIDE
@@ -412,41 +398,6 @@ class Prism_SwanSidePlugins_Functions(object):
         if sys.version[0] == "3":
             result = [x.decode("utf-8", "ignore") for x in result]
 
-        return result
-
-    @err_catcher(name=__name__)
-    def process_mov_from_nuke(self, path, output_path, frame_in, frame_out, from_blender=False):
-        nuke_path = self.core.getConfig("dccoverrides", "Nuke_path")
-        scene_py = os.path.join(EXT_MODULES_PATHS, "process_mov_nk.py")
-
-        data_dict = {
-            "input_path": path,
-            "output_path": output_path,
-            "frame_in": int(frame_in),
-            "frame_out": int(frame_out),
-            "from_blender": from_blender,
-        }
-
-        json_path = os.path.join(
-            os.path.dirname(output_path), os.path.basename(output_path) + ".json"
-        )
-
-        with open(json_path, 'w') as fp:
-            json.dump(data_dict, fp, indent=4)
-        argList = [nuke_path, "-x", scene_py, json_path]
-
-        logger.info("Processing mov from path: {} to {} on frame {} {}".format(
-            path, output_path, frame_in, frame_out)
-        )
-
-        nProc = subprocess.Popen(
-            argList, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
-        )
-
-        result = nProc.communicate()
-        if sys.version[0] == "3":
-            result = [x.decode("utf-8", "ignore") for x in result]
-        logger.info(result)
         return result
 
     @err_catcher(name=__name__)
