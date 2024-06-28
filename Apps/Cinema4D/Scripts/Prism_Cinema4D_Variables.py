@@ -42,8 +42,8 @@ class Prism_Cinema4D_Variables(object):
         self.pluginType = "App"
         self.appShortName = "Cinema4D"
         self.appType = "3d"
-        self.hasQtParent = True
-        self.sceneFormats = [".format"]
+        self.hasQtParent = False
+        self.sceneFormats = [".c4d"]
         self.appSpecificFormats = self.sceneFormats
         self.outputFormats = [".abc", ".obj", ".fbx", "ShotCam"]
         self.appColor = [255, 255, 255]
@@ -52,3 +52,4 @@ class Prism_Cinema4D_Variables(object):
         self.pluginDirectory = os.path.abspath(
             os.path.dirname(os.path.dirname(__file__))
         )
+        self.appIcon = os.path.join(self.pluginDirectory, "Resources", "Cinema4D.png")

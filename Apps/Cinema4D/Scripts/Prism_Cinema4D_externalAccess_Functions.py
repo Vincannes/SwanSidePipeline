@@ -33,6 +33,7 @@
 
 
 import os
+import logging
 import platform
 
 from qtpy.QtCore import *
@@ -41,11 +42,14 @@ from qtpy.QtWidgets import *
 
 from PrismUtils.Decorators import err_catcher_plugin as err_catcher
 
+logger = logging.getLogger(__name__)
+
 
 class Prism_Cinema4D_externalAccess_Functions(object):
     def __init__(self, core, plugin):
         self.core = core
         self.plugin = plugin
+        self.core.registerCallback("getPresetScenes", self.getPresetScenes, plugin=self.plugin)
 
     @err_catcher(name=__name__)
     def getAutobackPath(self, origin):
@@ -64,5 +68,7 @@ class Prism_Cinema4D_externalAccess_Functions(object):
         return autobackpath, fileStr
 
     @err_catcher(name=__name__)
-    def copySceneFile(self, origin, origFile, targetPath, mode="copy"):
-        pass
+    def getPresetScenes(self, presetScenes):
+        presetDir = os.path.join(self.pluginDirectory, "Presets")
+        scenes = self.core.entities.getPresetScenesFromFolder(presetDir)
+        presetScenes += scenes

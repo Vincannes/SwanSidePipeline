@@ -35,6 +35,7 @@
 import os
 import sys
 import platform
+import logging
 import shutil
 
 from qtpy.QtCore import *
@@ -42,6 +43,18 @@ from qtpy.QtGui import *
 from qtpy.QtWidgets import *
 
 from PrismUtils.Decorators import err_catcher_plugin as err_catcher
+
+logger = logging.getLogger(__name__)
+
+
+def copytree(src, dst, symlinks=False, ignore=None):
+    for item in os.listdir(src):
+        s = os.path.join(src, item)
+        d = os.path.join(dst, item)
+        if os.path.isdir(s):
+            shutil.copytree(s, d, symlinks, ignore)
+        else:
+            shutil.copy2(s, d)
 
 
 class Prism_Cinema4D_Integration(object):
@@ -52,7 +65,7 @@ class Prism_Cinema4D_Integration(object):
         if platform.system() == "Windows":
             self.examplePath = os.path.join(
                 os.environ["userprofile"], "AppData", "Roaming", "Maxon",
-                "Maxime Cinema 4D {}".format("R25_1FE0824E"), "plugins"
+                "Maxime Cinema 4D {}".format("R25_1FE0824E")
             )
 
         elif platform.system() == "Linux":
@@ -69,7 +82,7 @@ class Prism_Cinema4D_Integration(object):
                 else os.environ["USER"]
             )
             self.examplePath = (
-                "/Users/%s/Library/Preferences/Autodesk/Cinema4D/2019" % userName
+                "C:\\Users\\%s\\AppData\\Roaming\\Maxon\\Maxon_Cinema_4D_R25_1FE0824E" % userName
             )
 
     @err_catcher(name=__name__)
@@ -94,32 +107,13 @@ class Prism_Cinema4D_Integration(object):
             )
             addedFiles = []
 
-            py_c4d_dir = os.path.join(integrationBase, "py-swanside_r25")
+            py_c4d_dir = os.path.join(integrationBase)
 
             integrationFiles = [os.listdir(py_c4d_dir)]
-            path_to_dir = ""
-            initpath = os.path.join(installPath, "scripts", "PrismInit.py")
-            print(initpath)
-            # shutil.copytree(py_c4d_dir, path_to_dir)
-
-            # if os.path.exists(initpath):
-            #     os.remove(initpath)
-            #
-            # if os.path.exists(initpath + "c"):
-            #     os.remove(initpath + "c")
-            #
-            # origInitFile = os.path.join(integrationBase, "PrismInit.py")
-            # shutil.copy2(origInitFile, initpath)
-            # addedFiles.append(initpath)
-            #
-            # with open(initpath, "r") as init:
-            #     initStr = init.read()
-            #
-            # with open(initpath, "w") as init:
-            #     initStr = initStr.replace(
-            #         "PRISMROOT", '"%s"' % self.core.prismRoot.replace("\\", "/")
-            #     )
-            #     init.write(initStr)
+            initpath = os.path.join(installPath, "scripts", "plugins")
+            path_to_dir = os.path.join(initpath, "py-swanside_r25")
+            if not os.path.exists(path_to_dir):
+                copytree(py_c4d_dir, path_to_dir)
 
             if platform.system() in ["Linux", "Darwin"]:
                 for i in addedFiles:
