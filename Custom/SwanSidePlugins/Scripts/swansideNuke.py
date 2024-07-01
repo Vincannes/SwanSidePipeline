@@ -51,7 +51,7 @@ class SwanSideNukePlugins(object):
         scene_data = json.load(open(json_scene_path, "r"))
 
         extension = os.path.basename(sequence_path).split(".")[-1]
-        first_frame, last_frame = self.parent.get_first_last_frames(
+        first_frame, last_frame = self.parent.media.get_first_last_frames(
             os.path.dirname(sequence_path), extension
         )
 
@@ -70,9 +70,13 @@ class SwanSideNukePlugins(object):
         task_name = seq_data.get("task")
         shot_name = scene_data.get("shot")
 
+        _comment = "{} \n\n{}".format(
+            os.path.basename(sequence_path).split(".")[0], comment
+        )
+
         task = self.parent._publisher.get_task(task_name, shot_name)
         publish = self.parent._publisher.add_publish(
-            task, self.NUKE_STATUS, comment=comment, file_path=scene_path, preview_file=tmp_mov
+            task, self.NUKE_STATUS, comment=_comment, file_path=scene_path, preview_file=tmp_mov
         )
 
         return "Publish Succeed for {}".format(os.path.basename(sequence_path))

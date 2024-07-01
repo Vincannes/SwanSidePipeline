@@ -82,14 +82,29 @@ class Publisher(object):
             self.add_preview_to_comment(task, kt_comment, preview_file)
         return kt_comment
 
-    def get_comment(self, task, shot_name=None, last=False):
+    def last_status_task(self, task, shot_name=None, is_asset=False):
+        comment = self.get_comment(task, shot_name, is_asset)
+        if not comment:
+            return None
+        status = comment.get("task_status", {"short_name": None}).get("short_name")
+        return status
+
+    def get_status_from_path(self, task, shot_name, path):
+        basename = os.path.basename(path).split(".")[0]
+        comments = self.get_comments(task, shot_name)
+        for com in comments:
+            com_text = com.get("text")
+            if basename in com_text:
+                return com
+
+    def get_comment(self, task, shot_name=None, is_asset=False):
         if isinstance(task, str) and shot_name:
-            task = self.get_task(task, shot_name)
+            task = self.get_task(task, shot_name, "shot" if not is_asset else "asset")
         return self._gazu.task.get_last_comment_for_task(task)
 
-    def get_comments(self, task, shot_name=None):
+    def get_comments(self, task, shot_name=None, is_asset=False):
         if isinstance(task, str) and shot_name:
-            task = self.get_task(task, shot_name)
+            task = self.get_task(task, shot_name, "shot" if not is_asset else "asset")
         return self._gazu.task.all_comments_for_task(task)
 
     def add_preview_to_comment(self, task, comment, file_path):
@@ -139,15 +154,15 @@ if __name__ == '__main__':
     logger.info(f"Process {args.prod} {args.type} {args.entity} {args.task} {args.filepath}")
 
     status = "wfa"
-    publisher = Publisher(project_code=args.prod, url=url, mail=email, password=password)
+    prod = args.prod
+    publisher = Publisher(project_code=prod, url=url, mail=email, password=password)
 
     task = publisher.get_task(args.task, args.entity)
 
     preview_file = None
     file_path = args.filepath
-    comment = "Publisher from Command Line"
+    comment = "Publisher from Command Line : \n{}".format(os.path.basename(file_path).split(".")[0])
     if any([file_path.endswith(i) for i in [".exr", ".png", ".jpg"]]):
-        comment = file_path
         ext = os.path.basename(file_path).split(".")[-1]
         _, temp_name = tempfile.mkstemp(suffix="mov")
         preview_file = "{}.mov".format(temp_name)

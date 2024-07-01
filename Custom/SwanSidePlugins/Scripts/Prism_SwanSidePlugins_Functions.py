@@ -106,6 +106,10 @@ class Prism_SwanSidePlugins_Functions(object):
         self.core.plugins.monkeyPatch(self.core.media.getFFmpeg, self.getFFmpeg, self, force=True)
         self.core.plugins.monkeyPatch(self.core.media.convertMedia, self.convertMedia, self, force=True)
 
+    @property
+    def publisher(self):
+        return self._publisher
+
     # if returns true, the plugin will be loaded by Prism
     @err_catcher(name=__name__)
     def isActive(self):
@@ -181,11 +185,12 @@ class Prism_SwanSidePlugins_Functions(object):
         return files
 
     @err_catcher(name=__name__)
-    def get_asset_files_from_template(self, template_name="3drenders"):
+    def get_asset_files_from_template(self, template_name="3drenders", last_only=False):
         """Get list all Paths from given template for Assets
         return[list] = {"asset_name": [path_to_render]}
         """
         all_files = {}
+        version_pattern = re.compile(r'v(\d{4})')
         for asset_context in self.get_assets():
 
             asset_name = asset_context.get("asset")
@@ -206,18 +211,36 @@ class Prism_SwanSidePlugins_Functions(object):
             if not os.path.exists(template_dir):
                 continue
 
+            latest_paths = {}
             for identifier in os.listdir(template_dir):
                 identifier_task = os.path.join(template_dir, identifier)
-                all_files[asset_name].append(self.get_files_from_task_path(identifier_task))
+
+                for _f in sorted(self.get_files_from_task_path(identifier_task), reverse=True):
+                    basename = os.path.basename(_f)
+                    match = version_pattern.search(basename)
+
+                    if last_only and match:
+                        cur_version = int(match.group(1))
+                        base_path = version_pattern.sub("v####", basename)
+
+                        if base_path not in latest_paths or cur_version > latest_paths[base_path][0]:
+                            latest_paths[base_path] = (cur_version, _f)
+                    else:
+                        all_files[asset_name].append(_f)
+
+            if last_only:
+                for _, path in latest_paths.values():
+                    all_files[asset_name].append(path)
 
         return all_files
 
     @err_catcher(name=__name__)
-    def get_shot_files_from_template(self, template_name="3drenders"):
+    def get_shot_files_from_template(self, template_name="3drenders", last_only=False):
         """Get list all Paths from given template for Shots
         return[list] = {"shot_name": [path_to_render]}
         """
         all_files = {}
+        version_pattern = re.compile(r'v(\d{4})')
         seqs, shots = self.core.entities.getShots()
         for shot_context in shots:
             shot_name = shot_context.get("shot")
@@ -237,9 +260,26 @@ class Prism_SwanSidePlugins_Functions(object):
             if not os.path.exists(template_dir):
                 continue
 
+            latest_paths = {}
             for identifier in os.listdir(template_dir):
                 identifier_task = os.path.join(template_dir, identifier)
-                all_files[shot_name].append(self.get_files_from_task_path(identifier_task))
+
+                for _f in sorted(self.get_files_from_task_path(identifier_task), reverse=True):
+                    basename = os.path.basename(_f)
+                    match = version_pattern.search(basename)
+
+                    if last_only and match:
+                        cur_version = int(match.group(1))
+                        base_path = version_pattern.sub("v####", basename)
+
+                        if base_path not in latest_paths or cur_version > latest_paths[base_path][0]:
+                            latest_paths[base_path] = (cur_version, _f)
+                    else:
+                        all_files[shot_name].append(_f)
+
+            if last_only:
+                for _, path in latest_paths.values():
+                    all_files[shot_name].append(path)
 
         return all_files
 
@@ -266,6 +306,62 @@ class Prism_SwanSidePlugins_Functions(object):
                 files = self.core.mediaProducts.getFilesFromContext(aovs[0])
                 all_files.append(generate_pattern(files))
         return all_files
+
+    @err_catcher(name=__name__)
+    def get_fields_from_path(self, path):
+        json_path = self.get_versioninfo_from_path(path)
+        if not json_path:
+            return {}
+        return self.core.configs.readJson(json_path)
+
+    @err_catcher(name=__name__)
+    def get_versioninfo_from_path(self, path):
+        json_path = None
+        version_name = "versioninfo" + self.core.configs.getProjectExtension()
+        if not os.path.isdir(path):
+            dir_path = os.path.dirname(path)
+            basename, ext = os.path.splitext(os.path.basename(path))
+            basename_json = basename + "versioninfo" + self.core.configs.getProjectExtension()
+            if basename_json in os.listdir(dir_path):
+                json_path = os.path.join(dir_path, basename_json)
+            else:
+                if version_name in os.listdir(dir_path):
+                    json_path = os.path.join(dir_path, version_name)
+                else:
+                    if version_name in os.listdir(os.path.dirname(dir_path)):
+                        json_path = os.path.join(os.path.dirname(dir_path), version_name)
+        else:
+            if version_name in os.listdir(path):
+                json_path = os.path.join(path, version_name)
+            else:
+                if version_name in os.listdir(os.path.dirname(path)):
+                    json_path = os.path.join(os.path.dirname(path), version_name)
+        return json_path
+
+    @err_catcher(name=__name__)
+    def get_all_files_from_templates(self, last_only=False):
+        data = {"Assets": {}, "Shots": {}}
+        assets_3d = self.get_asset_files_from_template("3drenders", last_only)
+        assets_2d = self.get_asset_files_from_template("2drenders", last_only)
+        shots_3d = self.get_shot_files_from_template("3drenders", last_only)
+        shots_2d = self.get_shot_files_from_template("2drenders", last_only)
+
+        def _process(sub_data, data_key, is_asset):
+            for shot_name, paths in sub_data.items():
+                if not shot_name in data[data_key].keys():
+                    data[data_key][shot_name] = []
+                for path in paths:
+                    path_data = self.get_fields_from_path(path)
+                    task = path_data.get("task")
+                    status = self._publisher.last_status_task(task, shot_name, is_asset)
+                    version = path_data.get("version")
+                    data[data_key][shot_name].append((path, task, status, version))
+
+        _process(assets_3d, "Assets", True)
+        _process(assets_2d, "Assets", True)
+        _process(shots_3d, "Shots", False)
+        _process(shots_2d, "Shots", False)
+        return data
 
     @err_catcher(name=__name__)
     def convertMedia(self, inputpath, startNum, outputpath, settings=None):
