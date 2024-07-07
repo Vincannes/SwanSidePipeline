@@ -7,11 +7,12 @@ import datetime
 
 FOLDER_SCRIPTS = os.path.join("C:\\ProgramData", "Prism2")
 ARCHIVE_DIR = os.path.join(FOLDER_SCRIPTS, ".archive")
+# SOURCE_DIR = os.path.join(FOLDER_SCRIPTS, "plugins")
+# DESTIN_DIR = os.path.join(FOLDER_SCRIPTS, "test")
 SOURCE_DIR = os.path.join("Z:\Vincent", "Scripts_SWANSIDE")
-DESTIN_DIR = os.path.join(FOLDER_SCRIPTS, "test")
-# DESTIN_DIR = os.path.join(FOLDER_SCRIPTS, "plugins")
-DEST_VERSION_JSON_FILE = os.path.join(SOURCE_DIR, "plugins", "version.json")
-SOURC_VERSION_JSON_FILE = os.path.join(DESTIN_DIR, "version.json")
+DESTIN_DIR = os.path.join(FOLDER_SCRIPTS, "plugins")
+DEST_VERSION_JSON_FILE = os.path.join(DESTIN_DIR, "version.json")
+SOURC_VERSION_JSON_FILE = os.path.join(SOURCE_DIR, "version.json")
 
 if not os.path.exists(ARCHIVE_DIR):
     os.mkdir(ARCHIVE_DIR)
@@ -124,5 +125,4 @@ def run():
 if __name__ == "__main__":
     # run()
     from pprint import pprint
-
     rollback()
