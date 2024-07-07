@@ -1,0 +1,29 @@
+{
+    "plugins": [
+        {
+            "path": "C:\\ProgramData\\Prism2\\plugins\\Apps\\Cinema4D"
+        },
+        {
+            "path": "C:\\ProgramData\\Prism2\\plugins\\ProjectManagement"
+        },
+        {
+            "path": "C:\\ProgramData\\Prism2\\plugins\\Blender"
+        },
+        {
+            "path": "C:\\ProgramData\\Prism2\\plugins\\Nuke"
+        },
+        {
+            "path": "C:\\ProgramData\\Prism2\\plugins\\Kitsu"
+        },
+        {
+            "path": "C:\\ProgramData\\Prism2\\plugins\\Hub"
+        },
+        {
+            "path": "C:\\ProgramData\\Prism2\\plugins\\PrismInternals"
+        },
+        {
+            "path": "C:\\ProgramData\\Prism2\\plugins\\Custom\\SwanSidePlugins"
+        }
+    ],
+    "searchPaths": []
+}

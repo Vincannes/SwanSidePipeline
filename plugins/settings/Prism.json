@@ -1,0 +1,235 @@
+{
+    "globals": {
+        "current project": "D:\\Desk\\python\\Projects\\TestProd\\00_Pipeline\\pipeline.json",
+        "showonstartup": true,
+        "check_import_versions": true,
+        "checkframerange": true,
+        "username": "Vincent Trolard",
+        "autosave": true,
+        "send_error_reports": true,
+        "mediaPlayerPath": "",
+        "mediaPlayerName": "",
+        "checkForUpdates": 7,
+        "highdpi": false,
+        "debug_mode": true,
+        "username_abbreviation": "vtr",
+        "mediaPlayerFramePattern": false,
+        "useMediaThumbnails": true,
+        "capture_viewport": true,
+        "standalone_stylesheet": "Blue Moon",
+        "sockets_enabled": false,
+        "showFileSizes": true,
+        "checkframeranges": true
+    },
+    "nuke": {
+        "usenukex": false,
+        "useRelativePaths": false,
+        "nukeVersion": "Default"
+    },
+    "blender": {
+        "autosaverender": false,
+        "autosaveperproject": false,
+        "autosavepath": "\\",
+        "enableSendToHoudini": false,
+        "enableSendToMaya": false,
+        "enableSendToZBrush": false
+    },
+    "browser": {
+        "closeafterload": true,
+        "closeafterloadsa": false,
+        "current": "Assets",
+        "assetsVisible": true,
+        "shotsVisible": true,
+        "filesVisible": false,
+        "recentVisible": true,
+        "rendervisible": true,
+        "assetsOrder": 0,
+        "shotsOrder": 1,
+        "filesOrder": 2,
+        "recentOrder": 3,
+        "assetSorting": [
+            1,
+            1
+        ],
+        "shotSorting": [
+            1,
+            1
+        ],
+        "fileSorting": [
+            1,
+            1
+        ],
+        "autoplaypreview": true,
+        "showmaxassets": true,
+        "showmayaassets": true,
+        "showhouassets": true,
+        "shownukeassets": true,
+        "showblenderassets": true,
+        "showmaxshots": true,
+        "showmayashots": true,
+        "showhoushots": true,
+        "shownukeshots": true,
+        "showblendershots": true,
+        "currentProjectTab": "Scenefiles",
+        "windowSize": [
+            1077,
+            601
+        ],
+        "selectedContext": {
+            "paths": [
+                {
+                    "location": "remote",
+                    "path": ""
+                }
+            ],
+            "sequence": "vinc",
+            "shot": "vinc_sh_020",
+            "type": "shot",
+            "department": "Compositing",
+            "task": "Compositing",
+            "filename": "D:/Desk/python/Projects/TestProd/03_Production/Shots/vinc/vinc_sh_020/Scenefiles/Compositing/Compositing\\vinc-vinc_sh_020_Compositing_v0004.nk"
+        },
+        "scenefileSorting": [
+            1,
+            1
+        ],
+        "expandedAssets_Kitsu": [],
+        "expandedSequences_Kitsu": [
+            "test-_sequence",
+            "vinc-_sequence"
+        ],
+        "showAssetSearch": false,
+        "showShotSearch": false,
+        "sceneFilter": {
+            "Other": true,
+            "Nuke": true,
+            "Maya": true,
+            "Blender": true,
+            "SwansideNuke": true,
+            "Cinema4D": true
+        },
+        "scenefileLayout": "items",
+        "scenefileSplitter1": [
+            256,
+            275,
+            490
+        ],
+        "scenefileSplitter2": [
+            256,
+            226
+        ],
+        "scenefileSplitter3": [
+            106,
+            159
+        ],
+        "productsSplitter1": [
+            90,
+            0,
+            0
+        ],
+        "autoUpdateRenders": true,
+        "previewDisabled": false,
+        "mediaSplitter1": [
+            85,
+            0,
+            0,
+            0
+        ],
+        "reviewSplitter1": [
+            102,
+            204,
+            324
+        ],
+        "rememberWidgetSizes": true,
+        "tasksSplitter1": [
+            318,
+            317
+        ],
+        "showEntityPreviews": true,
+        "expandedAssets_Test Prod": [],
+        "expandedSequences_Test Prod": [
+            "vinc-_sequence"
+        ]
+    },
+    "localfiles": {},
+    "recent_projects": [
+        {
+            "configPath": "D:\\Desk\\python\\Projects\\TestProd\\00_Pipeline\\pipeline.json",
+            "name": "Test Prod",
+            "date": 1717764623.1051328
+        },
+        {
+            "configPath": "D:\\Desk\\python\\Projects\\TestKitsu\\00_Pipeline\\pipeline.json",
+            "name": "Kitsu",
+            "date": 1717762852.242538
+        }
+    ],
+    "environmentVariables": {},
+    "plugins": {
+        "inactive": []
+    },
+    "updater": {
+        "lastUpdateCheck": "2024-06-30 09:22:16.463206"
+    },
+    "foldersToDelete": [],
+    "useLocalFiles": {
+        "Kitsu": "inherit",
+        "Test Prod": "inherit"
+    },
+    "dccoverrides": {
+        "Maya_path": "C:\\Program Files\\Autodesk\\Maya2024\\bin\\maya.exe",
+        "Nuke_path": "C:\\Program Files\\Nuke13.0v1\\Nuke13.0.exe",
+        "Maya_override": false,
+        "Nuke_override": true,
+        "Blender_path": "C:/Program Files/Blender Foundation/Blender 3.6\\blender.exe",
+        "Blender_override": false,
+        "SwansideNuke_override": false,
+        "SwansideNuke_path": "",
+        "Cinema4D_override": true,
+        "Cinema4D_path": "C:\\Program Files\\Maxon Cinema 4D R25\\Cinema 4D.exe"
+    },
+    "prjManagement": {
+        "kitsu_email": "gAAAAABmfCP0FdLzO_6DL-jR5Zr8CV4CkNyUKoPnaGAc1bDZdS9-Z7zmFKRG48ssyWsc_RhlSx8mz0-vu6FGMFYuhJUev_9Agsi8Bj9kqKLQTGVTW6yaz_A=",
+        "kitsu_password": "gAAAAABmfCP0Y0QxOv91uYh1HiZIrdSkqm1MLF6Hm1SBYJDv_Q0Fq1miawBGVx44zrOs4bJCMdCl1UFn6YEORQ8L4QZ8v-nUNQ==",
+        "taskFilter_done": true,
+        "taskFilter_ready": true,
+        "taskFilter_retake": true,
+        "taskFilter_todo": true,
+        "taskFilter_wfa": true,
+        "taskFilter_wip": true,
+        "taskFilter_wtg": true,
+        "taskFilter_ip": true,
+        "taskFilter_fin": true,
+        "taskFilter_N/A": true
+    },
+    "recent_files_Test Prod": [
+        "D:/Desk/python/Projects/TestProd/03_Production/Shots/vinc/vinc_sh_020/Scenefiles/Compositing/Compositing\\vinc-vinc_sh_020_Compositing_v0004.nk",
+        "D:/Desk/python/Projects/TestProd/03_Production/Assets/Environment/landscape/Scenefiles/Modeling/Shading\\landscape_Shading_v0003.blend",
+        "D:/Desk/python/Projects/TestProd/03_Production/Shots/vinc/vinc_sh_020/Scenefiles/FX/FX\\vinc-vinc_sh_020_FX_v0001.c4d",
+        "D:/Desk/python/Projects/TestProd/03_Production/Shots/vinc/vinc_sh_020/Scenefiles/FX/FX/vinc-vinc_sh_020_FX_v0001.c4d",
+        "D:/Desk/python/Projects/TestProd/03_Production/Shots/vinc/vinc_sh_020/Scenefiles/Compositing/Compositing/vinc-vinc_sh_020_Compositing_v0005.c4d",
+        "D:/Desk/python/Projects/TestProd/03_Production/Shots/vinc/vinc_sh_020/Scenefiles/Compositing/Lighting\\vinc-vinc_sh_020_Lighting_v0001.blend",
+        "D:/Desk/python/Projects/TestProd/03_Production/Shots/vinc/vinc_sh_020/Scenefiles/Animation/Animation\\vinc-vinc_sh_020_Animation_v0084.blend",
+        "D:/Desk/python/Projects/TestProd/03_Production/Shots/vinc/vinc_sh_020/Scenefiles/Compositing/Compositing\\vinc-vinc_sh_020_Compositing_v0003.nk",
+        "D:/Desk/python/Projects/TestProd/03_Production/Shots/vinc/vinc_sh_020/Scenefiles/Animation/Animation\\vinc-vinc_sh_020_Animation_v0081.blend",
+        "D:/Desk/python/Projects/TestProd/03_Production/Shots/vinc/vinc_sh_020/Scenefiles/Animation/Animation/vinc-vinc_sh_020_Animation_v0081.blend"
+    ],
+    "stateManager": {
+        "saveSceneBeforePublish": true,
+        "versionUpSceneOnPublish": true,
+        "saveSceneDuringPublish": true
+    },
+    "maya": {
+        "saveSceneType": ".ma",
+        "setMayaProject": true,
+        "addProjectPluginPaths": false,
+        "enableSendToHoudini": false,
+        "enableSendToZBrush": false,
+        "enableSendToBlender": false
+    },
+    "kitsu": {
+        "url": "https://vincannes.cg-wire.com",
+        "email": "vincent.trolard@gmail.com",
+        "password": "Joyjoy06"
+    }
+}
