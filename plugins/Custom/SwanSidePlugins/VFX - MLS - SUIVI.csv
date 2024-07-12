@@ -1,26 +1,26 @@
 Shot,"TC(25fps)
 ",,"Total Frame
 (per shot)",MATCHMOVE,Rotoscoping,3D WORKERS,FX,3D,COMPOSITING,CLIENT FEEDBACK,SHOT STORYBOARD,Notes,,Render link
-C010,,,,DONE,DONE,enzo,N/A,DONE,N/A,,,"Only render of the jersey. 
+TEST_010,,,,DONE,DONE,enzo,N/A,DONE,N/A,,,"Only render of the jersey.
 Waiting for feedback video",,
 ,,,,,,,,,,,,,,
-C014,,,,DONE,DONE,enzo,N/A,DONE,N/A,,,Stade 3D,,
+TEST_014,,,,DONE,DONE,enzo,N/A,DONE,N/A,,,Stade 3D,,
 ,,,,,,comp ,N/A,N/A,DONE,,,,,
-C019,,,,DONE,DONE,enzo,N/A,DONE,N/A,,,Stade 3D,,
+TEST_019,,,,DONE,DONE,enzo,N/A,DONE,N/A,,,Stade 3D,,
 ,,,,,,comp ,N/A,N/A,DONE,,,,,
-C021,,,,DONE,DONE,enzo,N/A,DONE,N/A,,,"Clean
+TEST_021,,,,DONE,DONE,enzo,N/A,DONE,N/A,,,"Clean
 Ball anim
 Smoke trail
 Stade 3D 
 Mersh net",,
 ,,,,,,comp ,N/A,N/A,DONE,,,,,
 ,,,,,,Kamil,DONE,N/A,N/A,,,,,
-C025,,,,DONE,DONE,enzo,N/A,N/A,N/A,,,NO FX,,
+TEST_025,,,,DONE,DONE,enzo,N/A,N/A,N/A,,,NO FX,,
 ,,,,,,comp ,N/A,N/A,DONE,,,,,
-C03D,,,,DONE,DONE,enzo,N/A,DONE,N/A,,,"Only render of the jersey. 
+TEST_03D,,,,DONE,DONE,enzo,N/A,DONE,N/A,,,"Only render of the jersey.
 Waiting for feedback video",,
 ,,,,,,comp ,N/A,N/A,DONE,,,,,
-7,,,,,,enzo,N/A,,N/A,,,"film the boy with the camera on sticks or an Easyrig in front of a blue screen with tracking markers.
+TEST_7,,,,,,enzo,N/A,,N/A,,,"film the boy with the camera on sticks or an Easyrig in front of a blue screen with tracking markers.
  Perform 3D camera tracking or camera matching. Use the clean plate to erase all the tracking markers. 
 Chromakey the boy and surrounding grass and grass in the foreground.
  Replace all the background with a render of the 3D soccer field.",,

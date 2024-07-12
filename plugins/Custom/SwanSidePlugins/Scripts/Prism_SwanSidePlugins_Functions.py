@@ -79,7 +79,7 @@ class Prism_SwanSidePlugins_Functions(object):
         shots = self._parser.get_shots()
         for shot in shots:
             entity = {
-                "sequence": "C010",
+                "sequence": shot.split("_")[0],
                 "shot": shot,
             }
             shot_path = self.core.projects.getResolvedProjectStructurePath(
