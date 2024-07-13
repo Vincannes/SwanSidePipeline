@@ -5,6 +5,7 @@ plugins/Custom/SwanSidePlugins/ExternalModules/socketio/
 plugins/Custom/SwanSidePlugins/ExternalModules/zou/
 
 plugins/Hub/
+plugins/Kitsu/
 plugins/PrismInternals/
 plugins/ProjectManagement/
 .idea/*
