@@ -8,26 +8,26 @@ import datetime
 
 THIS_DIR = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(os.path.join(THIS_DIR, "ExternalModules", "releaser_modules"))
-#
-# import requests
-# from github_release_downloader import AuthSession, get_latest_version, GitHubRepo, get_available_versions
-#
-# FOLDER_SCRIPTS = os.path.join("C:\\ProgramData", "Prism2")
-# ARCHIVE_DIR = os.path.join(FOLDER_SCRIPTS, ".archive")
-# # DESTIN_DIR = os.path.join(FOLDER_SCRIPTS, "plugins")
+
+import requests
+from github_release_downloader import AuthSession, get_latest_version, GitHubRepo, get_available_versions
+
+FOLDER_SCRIPTS = os.path.join("C:\\ProgramData", "Prism2")
+ARCHIVE_DIR = os.path.join(FOLDER_SCRIPTS, ".archive")
 # DESTIN_DIR = os.path.join(FOLDER_SCRIPTS, "plugins")
-# DEST_VERSION_JSON_FILE = os.path.join(DESTIN_DIR, "version.json")
-#
-#
-# try:
-#     if not os.path.exists(ARCHIVE_DIR):
-#         os.mkdir(ARCHIVE_DIR)
-# except:
-#     logging.info("BUG Path {} does't exist".format(ARCHIVE_DIR))
-#
-# REPO = GitHubRepo("Vincannes", "SwanSidePipeline")
-# AuthSession.init(REPO)
-#
+DESTIN_DIR = os.path.join(FOLDER_SCRIPTS, "plugins")
+DEST_VERSION_JSON_FILE = os.path.join(DESTIN_DIR, "version.json")
+
+
+try:
+    if not os.path.exists(ARCHIVE_DIR):
+        os.mkdir(ARCHIVE_DIR)
+except:
+    logging.info("BUG Path {} does't exist".format(ARCHIVE_DIR))
+
+REPO = GitHubRepo("Vincannes", "SwanSidePipeline")
+AuthSession.init(REPO)
+
 
 def version_tuple(version):
     return tuple(map(int, version.split('.')))
