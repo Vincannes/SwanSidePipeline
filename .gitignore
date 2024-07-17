@@ -1,12 +1,21 @@
-SwanSideNuke/
-SwanSidePlugins/ExternalModules/engineio/
-SwanSidePlugins/ExternalModules/ffmpeg/
-SwanSidePlugins/ExternalModules/gazu/
-SwanSidePlugins/ExternalModules/socketio/
-SwanSidePlugins/ExternalModules/zou/
+plugins/Custom/SwanSidePlugins/ExternalModules/engineio/
+plugins/Custom/SwanSidePlugins/ExternalModules/ffmpeg/
+plugins/Custom/SwanSidePlugins/ExternalModules/gazu/
+plugins/Custom/SwanSidePlugins/ExternalModules/socketio/
+plugins/Custom/SwanSidePlugins/ExternalModules/zou/
+
+plugins/Hub/
+plugins/Kitsu/
+plugins/PrismInternals/
+plugins/ProjectManagement/
+.idea/*
+.archive/*
 
 *.exe
 *.rar
+
+.cache
+.backup
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
