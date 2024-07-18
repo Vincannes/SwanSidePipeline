@@ -17,6 +17,7 @@ ARCHIVE_DIR = os.path.join(FOLDER_SCRIPTS, ".archive")
 DESTIN_DIR = os.path.join(FOLDER_SCRIPTS, "plugins")
 DEST_VERSION_JSON_FILE = os.path.join(DESTIN_DIR, "version.json")
 
+
 try:
     if not os.path.exists(ARCHIVE_DIR):
         os.mkdir(ARCHIVE_DIR)
@@ -115,7 +116,6 @@ def download_release(name, zip_url):
 
 
 def copy_files(dir_path):
-    copied_files = 0
     for root, dirs, files in os.walk(dir_path):
         for f in files:
             zip_file_path = os.path.join(root, f)
@@ -128,8 +128,6 @@ def copy_files(dir_path):
                 if os.path.exists(dest):
                     os.remove(dest)
                 shutil.copy(zip_file_path, dest)
-                copied_files += 1
-                yield copied_files
 
 
 def rollback():
@@ -146,55 +144,28 @@ def has_to_run():
     return version_tuple(last_release_version) > version_tuple(dst_json_version)
 
 
-def lenght_files(dir_path):
-    lenght = 0
-    for root, dirs, files in os.walk(dir_path):
-        lenght = len(files)
-    return lenght
-
-
-def save_archive_curr_pipe():
+def run():
+    last_release_version = get_release_versions()[-1]
     dst_json_version = get_version(DEST_VERSION_JSON_FILE)
+
     save_dir_zip = create_save_file(dst_json_version)
     zip_directory(save_dir_zip)
 
-
-def download_and_unzip_last_pipe():
-    last_release_version = get_release_versions()[-1]
     name, zip_realease_url = get_release_url(last_release_version)
     zip_file = download_release(name, zip_realease_url)
     unzip_directory(zip_file, FOLDER_SCRIPTS)
-    return zip_file
 
-
-def get_downloaded_folder():
-    github_folder = None
     for i in os.listdir(FOLDER_SCRIPTS):
         if i.startswith("Vincannes"):
             github_folder = os.path.join(FOLDER_SCRIPTS, i)
-            break
-
-    return github_folder
-
-
-def remove_downloaded_file(zip_file, github_folder):
+            copy_files(github_folder)
+            os.remove(github_folder)
     shutil.copy(zip_file, os.path.join(ARCHIVE_DIR, os.path.basename(zip_file)))
-    os.remove(zip_file)
-    shutil.rmtree(github_folder)
-
-
-def run():
-    save_archive_curr_pipe()
-    zip_file = download_and_unzip_last_pipe()
-    github_folder = get_downloaded_folder()
-    copy_files(github_folder)
-    remove_downloaded_file(zip_file, github_folder)
 
 
 if __name__ == "__main__":
     # run()
     from pprint import pprint
-
     # rollback()
 
     out_dir = "D:\\Desk\\projets\\test.zip"
