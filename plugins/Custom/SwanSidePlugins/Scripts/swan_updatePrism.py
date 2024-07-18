@@ -174,8 +174,9 @@ def run():
     lenght = lenght_files(github_folder)
 
     copy_files(github_folder)
-    os.remove(github_folder)
     shutil.copy(zip_file, os.path.join(ARCHIVE_DIR, os.path.basename(zip_file)))
+    os.remove(zip_file)
+    shutil.rmtree(github_folder)
 
 
 if __name__ == "__main__":
