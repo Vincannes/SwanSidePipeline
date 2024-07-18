@@ -447,7 +447,7 @@ class Prism_SwanSidePlugins_Functions(object):
         try:
             if swan_updatePrism.has_to_run():
                 from customs.update_ui import UpdateUi
-                dialog = UpdateUi(swan_updatePrism.run)
+                dialog = UpdateUi()
                 dialog.exec_()
         except:
             pass
