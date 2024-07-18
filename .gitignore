@@ -1,8 +1,5 @@
-plugins/Custom/SwanSidePlugins/ExternalModules/engineio/
-plugins/Custom/SwanSidePlugins/ExternalModules/ffmpeg/
-plugins/Custom/SwanSidePlugins/ExternalModules/gazu/
-plugins/Custom/SwanSidePlugins/ExternalModules/socketio/
-plugins/Custom/SwanSidePlugins/ExternalModules/zou/
+plugins/Custom/SwanSidePlugins/ExternalModules/releaser_modules/
+plugins/Custom/SwanSidePlugins/ExternalModules/pandas_module/
 
 plugins/Hub/
 plugins/Nuke/

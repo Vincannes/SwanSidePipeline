@@ -24,7 +24,11 @@ class CSVParser(object):
 
     def get_shots(self):
         import pandas as pd
-        return [i.get("Shot") for i in self._data_dict if not pd.isnull(i.get("Shot"))]
+        return [i.get("Shots") for i in self._data_dict if not pd.isnull(i.get("Shots"))]
+
+    def get_assets(self):
+        import pandas as pd
+        return [i.get("Assets") for i in self._data_dict if not pd.isnull(i.get("Assets"))]
 
     def unset_env(self):
         if EXT_MODULES_PATHS in sys.path:
@@ -32,5 +36,5 @@ class CSVParser(object):
 
 
 if __name__ == "__main__":
-    path = "C:\ProgramData\Prism2\plugins\Custom\SwanSidePlugins\VFX - MLS - SUIVI.csv"
-    pprint(CSVParser(path).get_shots())
+    path = "D:\\Desk\\projets\\TestProd\\Template Assets SwanSide - SUIVI.csv"
+    pprint(CSVParser(path).get_assets())

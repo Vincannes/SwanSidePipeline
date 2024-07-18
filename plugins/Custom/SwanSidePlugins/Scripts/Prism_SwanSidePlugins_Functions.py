@@ -45,7 +45,6 @@ SWANSIDE_DIR = os.path.dirname(os.path.dirname(__file__))
 EXT_MODULES_PATHS = os.path.join(SWANSIDE_DIR, "ExternalModules")
 sys.path.append(EXT_MODULES_PATHS)
 
-import swan_updatePrism
 from customs.media import Media
 
 from PrismUtils.Decorators import err_catcher_plugin as err_catcher
@@ -101,9 +100,9 @@ class Prism_SwanSidePlugins_Functions(object):
 
         if self.core.requestedApp == "Standalone":
             self._createShotsFolderAtStartup()
+            self._updaterSwansideScripts(origin)
 
         self._saveShotsAssetsToPipelineJson()
-        self._updaterSwansideScripts(origin)
 
     @err_catcher(name=__name__)
     def get_assets(self):
@@ -364,12 +363,36 @@ class Prism_SwanSidePlugins_Functions(object):
         csv_shot_path = data.get(self.CSV_SHOTS)
         csv_asset_path = data.get(self.CSV_ASSETS)
 
-        if not csv_shot_path:
-            raise ValueError("No Shot csv path found. please had it to {} to load all shots".format(prod_path))
+        if not csv_shot_path or not csv_asset_path:
+            logger.info("No Shots/Assets csv path found. please had it to {} to load all shots".format(prod_path))
+            return
 
-        logger.info("Load csv:  {}".format(csv_shot_path))
+        self._create_shots_folder(csv_shot_path)
+        self._create_assets_folder(csv_asset_path)
+
+    def _create_assets_folder(self, csv_path):
+        logger.info("Load csv:  {}".format(csv_path))
         from csv_parser import CSVParser
-        _parser = CSVParser(csv_shot_path)
+        _parser = CSVParser(csv_path)
+
+        assets = _parser.get_assets()
+        for asset in assets:
+            entity = {
+                "entityType": "asset",
+                "asset_path": asset
+            }
+            asset_path = self.core.projects.getResolvedProjectStructurePath(
+                "assets", entity
+            )
+            if not os.path.exists(asset_path):
+                self.core.entities.createAsset(entity)
+
+        _parser.unset_env()
+
+    def _create_shots_folder(self, csv_path):
+        logger.info("Load csv:  {}".format(csv_path))
+        from csv_parser import CSVParser
+        _parser = CSVParser(csv_path)
 
         shots = _parser.get_shots()
         for shot in shots:
@@ -412,12 +435,13 @@ class Prism_SwanSidePlugins_Functions(object):
         self.core.configs.writeConfig(configPath, data)
 
     def _updaterSwansideScripts(self, origin):
+        import swan_updatePrism
         if self.core.uiAvailable:
             origin.myMenu = QMenu("SwanSide")
             tools = origin.myMenu.addMenu("Load CSVs")
             tools.addAction("Load Shots csv..", lambda: self._load_csv_path(isAsset=False))
-            tools.addAction("Load Assets csv..", lambda: self._load_csv_path(isAsset=False))
-            origin.myMenu.addAction("Previous pipeline version", swan_updatePrism.rollback)
+            tools.addAction("Load Assets csv..", lambda: self._load_csv_path(isAsset=True))
+            # origin.myMenu.addAction("Previous pipeline version", swan_updatePrism.rollback)
             origin.menubar.addMenu(origin.myMenu)
 
         try:
@@ -436,6 +460,8 @@ class Prism_SwanSidePlugins_Functions(object):
         )
         if isAsset:
             data[self.CSV_ASSETS] = file_path
+            self._create_assets_folder(file_path)
         else:
             data[self.CSV_SHOTS] = file_path
+            self._create_shots_folder(file_path)
         self.core.configs.writeConfig(configPath, data)
