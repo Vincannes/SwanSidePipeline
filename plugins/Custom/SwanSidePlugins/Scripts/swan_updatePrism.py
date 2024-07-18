@@ -144,6 +144,13 @@ def has_to_run():
     return version_tuple(last_release_version) > version_tuple(dst_json_version)
 
 
+def lenght_files(dir_path):
+    lenght = 0
+    for root, dirs, files in os.walk(dir_path):
+        lenght = len(files)
+    return lenght
+
+
 def run():
     last_release_version = get_release_versions()[-1]
     dst_json_version = get_version(DEST_VERSION_JSON_FILE)
@@ -155,11 +162,19 @@ def run():
     zip_file = download_release(name, zip_realease_url)
     unzip_directory(zip_file, FOLDER_SCRIPTS)
 
+    github_folder = None
     for i in os.listdir(FOLDER_SCRIPTS):
         if i.startswith("Vincannes"):
             github_folder = os.path.join(FOLDER_SCRIPTS, i)
-            copy_files(github_folder)
-            os.remove(github_folder)
+            break
+
+    if not github_folder:
+        return
+
+    lenght = lenght_files(github_folder)
+
+    copy_files(github_folder)
+    os.remove(github_folder)
     shutil.copy(zip_file, os.path.join(ARCHIVE_DIR, os.path.basename(zip_file)))
 
 
