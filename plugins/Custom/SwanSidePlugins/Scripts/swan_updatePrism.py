@@ -14,7 +14,6 @@ from github_release_downloader import AuthSession, get_latest_version, GitHubRep
 
 FOLDER_SCRIPTS = os.path.join("C:\\ProgramData", "Prism2")
 ARCHIVE_DIR = os.path.join(FOLDER_SCRIPTS, ".archive")
-# DESTIN_DIR = os.path.join(FOLDER_SCRIPTS, "plugins")
 DESTIN_DIR = os.path.join(FOLDER_SCRIPTS, "plugins")
 DEST_VERSION_JSON_FILE = os.path.join(DESTIN_DIR, "version.json")
 
@@ -154,7 +153,6 @@ def run():
 
     name, zip_realease_url = get_release_url(last_release_version)
     zip_file = download_release(name, zip_realease_url)
-    # clean_files(DESTIN_DIR)
     unzip_directory(zip_file, FOLDER_SCRIPTS)
 
     for i in os.listdir(FOLDER_SCRIPTS):
