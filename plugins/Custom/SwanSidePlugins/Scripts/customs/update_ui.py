@@ -96,13 +96,14 @@ class UpdateUi(QDialog):
     def onRejected(self):
         self.reject()
 
-    def updateProgress(self, value):
+    def updateProgress(self, value, msg):
         if value == 0:
             github_folder = updater.get_downloaded_folder()
             length = updater.length_files(github_folder)
             self.progressBar.setMaximum(length+1)
         else:
             self.progressBar.setValue(value)
+        self.progressLabel.setText(msg)
 
     def onUpdateFinished(self):
         self.accept()
