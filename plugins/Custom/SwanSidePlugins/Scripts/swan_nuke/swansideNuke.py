@@ -27,11 +27,15 @@ class SwanSideNukePlugins(object):
         self._read_manager = ImportNukeLayers
         self.ui_publisher = SwanSideNukePublisher
 
+        _installLocPath = self.core.integration.installLocPath
+        self._installLocData = self.core.configs.readYaml(_installLocPath).get("Nuke")
+
         self.core.separateOutputVersionStack = False
         self.addCallBacks()
+        self.add_integration_menu()
 
     def addCallBacks(self):
-        nuke.addOnCreate(lambda : self._write_node(nuke.thisNode()), nodeClass="WritePrism")
+        nuke.addOnCreate(lambda: self._write_node(nuke.thisNode()), nodeClass="WritePrism")
 
     def read_manager(self, parent):
         data = self.parent.get_all_files_from_templates(last_only=True)
@@ -80,6 +84,34 @@ class SwanSideNukePlugins(object):
         os.startfile(path)
 
         return "Publish Succeed for {}".format(os.path.basename(sequence_path))
+
+    def add_integration_menu(self):
+        codes = [
+            "        from PySide2 import QtWidgets",
+            "        swanside_core = pcore.getPlugin('SwanSidePlugins')",
+            "        nuke.menu('Nuke').addCommand('Prism/Generate Publish Media...', lambda: "
+            "swanside_core.swanside_nuke.ui_publisher(pcore, QtWidgets.QApplication.activeWindow()).show()) "
+        ]
+
+        for file_path in self._installLocData:
+            menuFile = os.path.join(file_path, "menu.py")
+            if not os.path.exists(menuFile):
+                return
+
+            with open(menuFile, "r") as file:
+                content = file.read()
+
+            if all(code in content for code in codes):
+                return
+
+            new_content = ""
+            for line in content.splitlines():
+                if "# <<<PrismEnd" in line:
+                    new_content += "\n".join(codes) + "\n"
+                new_content += line + "\n"
+
+            with open(menuFile, "w") as file:
+                file.write(new_content)
 
     def _write_node(self, node):
         if not node:
