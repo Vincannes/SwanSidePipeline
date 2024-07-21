@@ -456,14 +456,15 @@ class Prism_SwanSidePlugins_Functions(object):
 
     def _load_csv_path(self, isAsset=False):
         configPath = self.core.configs.getConfigPath("project")
-        data = self.core.getConfig(configPath=configPath)
+        data = self.core.configs.readJson(path=configPath)
         file_path, _ = QFileDialog.getOpenFileName(
             None, "Open File", "", "All Files (*);;Text Files (*.csv)"
         )
         if isAsset:
             data[self.CSV_ASSETS] = file_path
-            self._create_assets_folder(file_path)
+            self.core.configs.writeConfig(configPath, data)
+            # self._create_assets_folder(file_path)
         else:
             data[self.CSV_SHOTS] = file_path
-            self._create_shots_folder(file_path)
-        self.core.configs.writeConfig(configPath, data)
+            self.core.configs.writeConfig(configPath, data)
+            # self._create_shots_folder(file_path)
