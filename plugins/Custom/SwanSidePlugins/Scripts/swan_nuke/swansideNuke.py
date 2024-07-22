@@ -32,7 +32,7 @@ class SwanSideNukePlugins(object):
 
         self.core.separateOutputVersionStack = False
         self.addCallBacks()
-        self.add_integration_menu()
+        # self.add_integration_menu()
 
     def addCallBacks(self):
         nuke.addOnCreate(lambda: self._write_node(nuke.thisNode()), nodeClass="WritePrism")
