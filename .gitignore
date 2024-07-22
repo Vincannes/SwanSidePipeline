@@ -5,6 +5,7 @@ plugins/Hub/
 plugins/Nuke/
 plugins/Kitsu/
 plugins/Blender/
+plugins/Houdini/
 plugins/PrismInternals/
 plugins/ProjectManagement/
 .idea/*

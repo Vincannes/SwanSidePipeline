@@ -197,4 +197,5 @@ if __name__ == "__main__":
     # rollback()
 
     out_dir = "D:\\Desk\\projets\\test.zip"
-    run()
+    # run()
+    print(has_to_run())

@@ -363,12 +363,15 @@ class Prism_SwanSidePlugins_Functions(object):
         csv_shot_path = data.get(self.CSV_SHOTS)
         csv_asset_path = data.get(self.CSV_ASSETS)
 
-        if not csv_shot_path or not csv_asset_path:
-            logger.info("No Shots/Assets csv path found. please had it to {} to load all shots".format(prod_path))
-            return
+        if not csv_shot_path:
+            logger.info("No Shots csv path found. please had it to {} to load all shots".format(prod_path))
+        else:
+            self._create_shots_folder(csv_shot_path)
 
-        self._create_shots_folder(csv_shot_path)
-        self._create_assets_folder(csv_asset_path)
+        if not csv_asset_path:
+            logger.info("No Assets csv path found. please had it to {} to load all shots".format(prod_path))
+        else:
+            self._create_assets_folder(csv_asset_path)
 
     def _create_assets_folder(self, csv_path):
         logger.info("Load csv:  {}".format(csv_path))
@@ -395,6 +398,7 @@ class Prism_SwanSidePlugins_Functions(object):
         _parser = CSVParser(csv_path)
 
         shots = _parser.get_shots()
+        frame_range = _parser.get_shots_framerange()
         for shot in shots:
             entity = {
                 "sequence": shot.split("_")[0],
@@ -403,8 +407,9 @@ class Prism_SwanSidePlugins_Functions(object):
             shot_path = self.core.projects.getResolvedProjectStructurePath(
                 "shots", entity
             )
+            framerange = frame_range.get(shot)
             if not os.path.exists(shot_path):
-                self.core.entities.createShot(entity)
+                self.core.entities.createShot(entity, framerange)
 
         _parser.unset_env()
 
@@ -441,7 +446,6 @@ class Prism_SwanSidePlugins_Functions(object):
             tools = origin.myMenu.addMenu("Load CSVs")
             tools.addAction("Load Shots csv..", lambda: self._load_csv_path(isAsset=False))
             tools.addAction("Load Assets csv..", lambda: self._load_csv_path(isAsset=True))
-            # origin.myMenu.addAction("Previous pipeline version", swan_updatePrism.rollback)
             origin.menubar.addMenu(origin.myMenu)
 
         if swan_updatePrism.has_to_run():
@@ -449,17 +453,17 @@ class Prism_SwanSidePlugins_Functions(object):
             dialog = UpdateUi()
             dialog.exec_()
 
-
     def _load_csv_path(self, isAsset=False):
         configPath = self.core.configs.getConfigPath("project")
-        data = self.core.getConfig(configPath=configPath)
+        data = self.core.configs.readJson(path=configPath)
         file_path, _ = QFileDialog.getOpenFileName(
             None, "Open File", "", "All Files (*);;Text Files (*.csv)"
         )
         if isAsset:
             data[self.CSV_ASSETS] = file_path
-            self._create_assets_folder(file_path)
+            self.core.configs.writeConfig(configPath, data)
+            # self._create_assets_folder(file_path)
         else:
             data[self.CSV_SHOTS] = file_path
-            self._create_shots_folder(file_path)
-        self.core.configs.writeConfig(configPath, data)
+            self.core.configs.writeConfig(configPath, data)
+            # self._create_shots_folder(file_path)
