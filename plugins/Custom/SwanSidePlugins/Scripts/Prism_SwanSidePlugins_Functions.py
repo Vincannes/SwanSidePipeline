@@ -446,7 +446,6 @@ class Prism_SwanSidePlugins_Functions(object):
             tools = origin.myMenu.addMenu("Load CSVs")
             tools.addAction("Load Shots csv..", lambda: self._load_csv_path(isAsset=False))
             tools.addAction("Load Assets csv..", lambda: self._load_csv_path(isAsset=True))
-            # origin.myMenu.addAction("Previous pipeline version", swan_updatePrism.rollback)
             origin.menubar.addMenu(origin.myMenu)
 
         if swan_updatePrism.has_to_run():
