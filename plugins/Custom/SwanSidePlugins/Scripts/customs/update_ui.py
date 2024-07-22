@@ -11,7 +11,7 @@ class Worker(QThread):
     updateFinished = Signal()
 
     def run(self):
-        self.progressChanged.emit(1, "Archiving the  current pipeline...")
+        self.progressChanged.emit(1, "Archiving the current pipeline...")
         updater.save_archive_curr_pipe()
         self.progressChanged.emit(50, "Downloading new pipeline...")
         zip_file = updater.download_and_unzip_last_pipe()
