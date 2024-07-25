@@ -79,13 +79,17 @@ class Prism_SwanSidePlugins_Functions(object):
 
         self.media = Media()
 
+        self.core.registerCallback(
+            "onProjectBrowserStartup", self.onProjectBrowserStartup, plugin=self.plugin
+        )
+
         if self.core.requestedApp == "Nuke":
             from swan_nuke.swansideNuke import SwanSideNukePlugins
             self.swanside_nuke = SwanSideNukePlugins(self, core, plugin)
 
-        self.core.registerCallback(
-            "onProjectBrowserStartup", self.onProjectBrowserStartup, plugin=self.plugin
-        )
+        elif self.core.requestedApp == "Blender":
+            from swan_blender.swansideBlender import SwanSideBlenderPlugins
+            self.swanside_blender = SwanSideBlenderPlugins(self, core, plugin)
 
     @err_catcher(name=__name__)
     def isActive(self):
