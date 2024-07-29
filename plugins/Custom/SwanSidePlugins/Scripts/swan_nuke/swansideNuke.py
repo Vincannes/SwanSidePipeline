@@ -11,6 +11,8 @@ from pprint import pprint
 
 logger = logging.getLogger(__name__)
 
+from PrismUtils.Decorators import err_catcher_plugin as err_catcher
+
 from swan_exceptions import PublishNukeFailed
 from swan_nuke.nukePublisherUI import SwanSideNukePublisher
 from swan_nuke.swanSideImportNukeLayersUi import ImportNukeLayers
@@ -19,6 +21,7 @@ from swan_nuke.swanSideImportNukeLayersUi import ImportNukeLayers
 class SwanSideNukePlugins(object):
     NUKE_STATUS = "wfa"
 
+    @err_catcher(name=__name__)
     def __init__(self, parent, core, plugin):
         self.core = core
         self.parent = parent
