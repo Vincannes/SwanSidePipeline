@@ -8,7 +8,6 @@ from pprint import pprint
 SWANSIDE_DIR = os.path.dirname(os.path.dirname(__file__))
 EXT_MODULES_PATHS = os.path.join(SWANSIDE_DIR, "ExternalModules", "pandas_module")
 
-
 class CSVParser(object):
     SHOTS = "Shots"
     ASSETS = "Assets"
@@ -52,5 +51,5 @@ class CSVParser(object):
 
 
 if __name__ == "__main__":
-    path = "D:\\Desk\\projets\\TestProd\\Template Shots SwanSide - SUIVI.csv"
+    path = "D:\\Desk\\armes\\BUENAS NOCHES - SWANSIDE SHOTS - SUIVI.csv"
     pprint(CSVParser(path).get_shots_framerange())
