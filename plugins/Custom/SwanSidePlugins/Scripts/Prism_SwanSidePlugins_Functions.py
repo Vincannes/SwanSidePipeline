@@ -103,6 +103,7 @@ class Prism_SwanSidePlugins_Functions(object):
         """
 
         if self.core.requestedApp == "Standalone":
+            logger.info("LAAAAA"*50)
             self._createShotsFolderAtStartup()
             self._updaterSwansideScripts(origin)
 
@@ -470,4 +471,5 @@ class Prism_SwanSidePlugins_Functions(object):
         else:
             data[self.CSV_SHOTS] = file_path
             self.core.configs.writeConfig(configPath, data)
+            logger.info(file_path)
             self._create_shots_folder(file_path)
