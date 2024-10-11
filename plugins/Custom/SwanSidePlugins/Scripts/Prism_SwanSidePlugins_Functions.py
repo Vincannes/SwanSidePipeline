@@ -16,6 +16,8 @@ SWANSIDE_DIR = os.path.dirname(os.path.dirname(__file__))
 EXT_MODULES_PATHS = os.path.join(SWANSIDE_DIR, "ExternalModules")
 sys.path.append(EXT_MODULES_PATHS)
 
+import utils
+import constants
 from customs.media import Media
 from swan_monkey_path import SwanSideMonkeyPatch
 
@@ -49,10 +51,13 @@ class Prism_SwanSidePlugins_Functions(object):
         if not self.isActive():
             return
 
-        self.media = Media()
         monkey_path = SwanSideMonkeyPatch(core, plugin)
         monkey_path.run()
 
+        self.media = Media()
+        self.core.registerCallback(
+            "onSetProjectStartup", self.onSetProjectStartup, plugin=self.plugin
+        )
         self.core.registerCallback(
             "onProjectBrowserStartup", self.onProjectBrowserStartup, plugin=self.plugin
         )
@@ -64,6 +69,15 @@ class Prism_SwanSidePlugins_Functions(object):
         elif self.core.requestedApp == "Blender":
             from swan_blender.swansideBlender import SwanSideBlenderPlugins
             self.swanside_blender = SwanSideBlenderPlugins(self, core, plugin)
+
+    @err_catcher(name=__name__)
+    def onSetProjectStartup(self, origin):
+        inSwansideNAS = utils.is_nas_reachable(constants.SERVEUR_NAS_URL)
+        if not inSwansideNAS:
+            self.core.popup(
+                "Vous n'etes pas connecté au serveur NAS.\n\n"\
+                "Connectez vous au serveur {}.".format(constants.SERVEUR_NAS_URL)
+            )
 
     @err_catcher(name=__name__)
     def isActive(self):
@@ -418,6 +432,10 @@ class Prism_SwanSidePlugins_Functions(object):
         self.core.configs.writeConfig(configPath, data)
 
     def _updaterSwansideScripts(self, origin):
+
+        if not getattr(origin, "menubar", None):
+            return
+
         import swan_updatePrism
         if self.core.uiAvailable:
             origin.myMenu = QMenu("SwanSide")

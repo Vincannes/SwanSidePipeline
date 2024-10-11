@@ -23,7 +23,7 @@ class Media(object):
         if platform.system() == "Windows":
             prism_json = os.path.join(user_dir, "Documents", "Prism2", "Prism.json")
 
-        self._nuke_path = json.load(open(prism_json)).get("dccoverrides").get("Nuke_path")
+        self._nuke_path = json.load(open(prism_json)).get("dccoverrides", {}).get("Nuke_path", None)
 
     def get_first_last_frames(self, inputpathdir, inputExt):
         # self.core.paths.getFrameFromFilename()

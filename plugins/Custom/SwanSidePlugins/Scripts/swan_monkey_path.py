@@ -10,6 +10,8 @@ from qtpy.QtGui import *
 from qtpy.QtWidgets import *
 
 from PrismUtils.Decorators import err_catcher_plugin as err_catcher
+import utils
+import constants
 
 logger = logging.getLogger(__name__)
 
@@ -49,13 +51,20 @@ class SwanSideMonkeyPatch(object):
                     self.core.configs.findDeprecatedConfig(configPath) or configPath
             )
 
-            if not os.path.exists(configPath):
+            #SWANSIDE FIX
+            if not os.path.exists(configPath) and not utils.is_nas_reachable(constants.SERVEUR_NAS_URL):
                 self.core.popup(
-                    "Cannot find project. File doesn't exist:\n\n{path}\n\n" \
+                    "Cannot connect to SwanSide NAS. File doesn't exist:\n\n{path}\n\n"\
                     "Please connect you to Swanside NAS: {url}".format(
                         path=configPath,
-                        url="\\10.6.0.1\encours_swanside"
+                        url=constants.SERVEUR_NAS_URL
                     )
+                )
+                return
+            #END SWANSIDE FIX
+            elif not os.path.exists(configPath):
+                self.core.popup(
+                    "Cannot set project. File doesn't exist:\n\n%s" % configPath
                 )
                 return
 
