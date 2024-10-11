@@ -1,35 +1,6 @@
-# -*- coding: utf-8 -*-
-#
-####################################################
-#
-# PRISM - Pipeline for animation and VFX projects
-#
-# www.prism-pipeline.com
-#
-# contact: contact@prism-pipeline.com
-#
-####################################################
-#
-#
-# Copyright (C) 2016-2023 Richard Frangenberg
-# Copyright (C) 2023 Prism Software GmbH
-#
-# Licensed under GNU LGPL-3.0-or-later
-#
-# This file is part of Prism.
-#
-# Prism is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Prism is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with Prism.  If not, see <https://www.gnu.org/licenses/>.
+#!/usr/bin/env python
+# #support	:Trolard Vincent
+# copyright	:Vincannes
 import re
 import os
 import sys
@@ -46,6 +17,7 @@ EXT_MODULES_PATHS = os.path.join(SWANSIDE_DIR, "ExternalModules")
 sys.path.append(EXT_MODULES_PATHS)
 
 from customs.media import Media
+from swan_monkey_path import SwanSideMonkeyPatch
 
 from PrismUtils.Decorators import err_catcher_plugin as err_catcher
 
@@ -78,6 +50,8 @@ class Prism_SwanSidePlugins_Functions(object):
             return
 
         self.media = Media()
+        monkey_path = SwanSideMonkeyPatch(core, plugin)
+        monkey_path.run()
 
         self.core.registerCallback(
             "onProjectBrowserStartup", self.onProjectBrowserStartup, plugin=self.plugin
@@ -471,3 +445,4 @@ class Prism_SwanSidePlugins_Functions(object):
             data[self.CSV_SHOTS] = file_path
             self.core.configs.writeConfig(configPath, data)
             self._create_shots_folder(file_path)
+
