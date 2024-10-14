@@ -11,7 +11,7 @@ def is_mount_accessible(mount_point):
 
 def is_nas_reachable(ip_address):
     try:
-        # On utilise le ping pour vérifier la connectivité réseau
+        # On utilise le ping pour verifier la connectivite reseau
         response = subprocess.run(['ping', '-n', '1', ip_address], stdout=subprocess.PIPE)
         return response.returncode == 0  # Si returncode est 0, la connexion a réussi
     except Exception as e:
