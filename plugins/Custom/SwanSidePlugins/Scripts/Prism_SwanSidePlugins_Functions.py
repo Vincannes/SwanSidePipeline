@@ -91,10 +91,10 @@ class Prism_SwanSidePlugins_Functions(object):
         """
 
         if self.core.requestedApp == "Standalone":
-            self._createShotsFolderAtStartup()
             self._updaterSwansideScripts(origin)
+            # self._createShotsFolderAtStartup()
 
-        self._saveShotsAssetsToPipelineJson()
+        # self._saveShotsAssetsToPipelineJson()
 
     @err_catcher(name=__name__)
     def get_assets(self):
@@ -404,6 +404,7 @@ class Prism_SwanSidePlugins_Functions(object):
                 self.core.entities.createShot(entity, framerange)
 
         _parser.unset_env()
+        self._saveShotsAssetsToPipelineJson()
 
     def _saveShotsAssetsToPipelineJson(self):
         """Write Shots and Assets to pipeline.json
