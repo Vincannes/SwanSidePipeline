@@ -54,7 +54,6 @@ class Prism_SwanSidePlugins_Functions(object):
         monkey_path = SwanSideMonkeyPatch(core, plugin)
         monkey_path.run()
 
-        self.media = Media()
         self.core.registerCallback(
             "onSetProjectStartup", self.onSetProjectStartup, plugin=self.plugin
         )
@@ -64,6 +63,7 @@ class Prism_SwanSidePlugins_Functions(object):
 
         if self.core.requestedApp == "Nuke":
             from swan_nuke.swansideNuke import SwanSideNukePlugins
+            self.media = Media()
             self.swanside_nuke = SwanSideNukePlugins(self, core, plugin)
 
         elif self.core.requestedApp == "Blender":

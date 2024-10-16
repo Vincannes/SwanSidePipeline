@@ -94,5 +94,5 @@ class CSVParser(object):
 
 
 if __name__ == "__main__":
-    path = "D:\\Desk\\armes\\BUENAS NOCHES - SWANSIDE SHOTS - SUIVI.csv"
-    pprint(CSVParser(path).get_shots_framerange())
+    path = "Z:\\BUENASNOCHES_SWANSIDE_PROJECT_ARTISTS\\PIPELINE\\BUENASNOCHES\\00_Pipeline\\BUENAS NOCHES - SWANSIDE ASSETS - SUIVI.csv"
+    pprint(CSVParser(path).get_assets())
