@@ -33,3 +33,6 @@ class SwanSideBlenderPlugins(object):
         """
         if state.className == "Playblast":
             state.cb_formats.setCurrentIndex(1)
+
+        # if state.className == "ImageRender":
+        #     state.cb_renderLayer.clear()

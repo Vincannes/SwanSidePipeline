@@ -4,10 +4,13 @@
 import os
 import re
 import sys
-import json
 import logging
 import platform
+import tempfile
 import subprocess
+from collections import OrderedDict
+
+from PrismUtils.Decorators import err_catcher
 
 PUBLISHER_DIR = os.path.dirname(os.path.dirname(__file__))
 EXT_MODULES_PATHS = os.path.join(PUBLISHER_DIR, "ExternalModules")
@@ -17,16 +20,9 @@ logger = logging.getLogger(__name__)
 
 class Media(object):
 
-    def __init__(self):
-        prism_json = ""
-        user_dir = os.environ["userprofile"]
-        if platform.system() == "Windows":
-            prism_json = os.path.join(user_dir, "Documents", "Prism2", "Prism.json")
-
-        try:
-            self._nuke_path = json.load(open(prism_json)).get("dccoverrides", {}).get("Nuke_path", None)
-        except:
-            self._nuke_path = None
+    def __init__(self, core):
+        self.core = core
+        self._core_media = self.core.media
 
     def get_first_last_frames(self, inputpathdir, inputExt):
         # self.core.paths.getFrameFromFilename()
@@ -36,7 +32,7 @@ class Media(object):
         inputpathdir = os.path.normpath(inputpathdir)
         if not os.path.isdir(inputpathdir):
             inputpathdir = os.path.dirname(inputpathdir)
-        if any([inputExt in ext for ext in [".exr", ".jpg"]]):
+        if any([inputExt in ext for ext in [".exr", ".jpg", ".png", ".dpx"]]):
             frames = []
             for filename in os.listdir(inputpathdir):
                 match = re.search(pattern, filename)
@@ -46,56 +42,114 @@ class Media(object):
             endNum = sorted(frames)[-1] or 1001
         return startNum, endNum
 
-    def process_mov_from_nuke(self, path, output_path, frame_in, frame_out):
-        import nuke
-        read = nuke.createNode("Read")
-        write = nuke.createNode("Write")
-        read["file"].fromUserText("{} {}-{}".format(os.path.normpath(path), frame_in, frame_out))
-        read["origfirst"].setValue(frame_in)
-        read["origlast"].setValue(frame_out)
-        read["first"].setValue(frame_in)
-        read["last"].setValue(frame_out)
-        write["file"].setValue(output_path)
-        write["file_type"].setValue("mov")
-        write.setInput(0, read)
-
-        nuke.execute(write, frame_in, frame_out, 1)
-        nuke.delete(read)
-        nuke.delete(write)
-
-    def process_mov_to_nuke(self, path, output_path, frame_in, frame_out, from_blender=False):
-        scene_py = os.path.join(EXT_MODULES_PATHS, "process_mov_nk.py")
-
-        data_dict = {
-            "input_path": path,
-            "output_path": output_path,
-            "frame_in": int(frame_in),
-            "frame_out": int(frame_out),
-            "from_blender": from_blender,
-        }
-        if output_path.endswith(".mov"):
-            output_path_file = output_path.replace(".mov", "")
-        else:
-            output_path_file = output_path
-        json_path = os.path.join(
-            os.path.dirname(output_path), os.path.basename(output_path_file) + ".json"
+    @err_catcher(name=__name__)
+    def process_mov_file_from_sequence(self, path):
+        _, file_extension = os.path.splitext(path)
+        first_frame, last_frame = self.get_first_last_frames(
+            os.path.dirname(path), file_extension
         )
 
-        with open(json_path, 'w') as fp:
-            json.dump(data_dict, fp, indent=4)
-        argList = [self._nuke_path, "-x", scene_py, json_path]
-
-        logger.info("Processing mov from path: {} to {} on frame {} {}".format(
-            path, output_path, frame_in, frame_out)
+        # generate tmp file
+        filename = self.generate_tmp_file()
+        tmp_mov = os.path.join(
+            os.path.dirname(filename), os.path.basename(filename) + ".mov"
+        )
+        tmp_mov = tmp_mov.replace("\\", "/")
+        concat_file = self._generate_concat_file(
+            os.path.dirname(path), file_extension
         )
 
+        argList = [
+            "-f", "concat",
+            "-safe", "0",
+            "-i", concat_file,
+            "-c:v", "libx264",
+            "-pix_fmt", "yuv420p",
+            tmp_mov
+        ]
+        result = self.process_custom_ffmpeg(argList)
+        return tmp_mov
+
+    def _old_process_mov_file_from_exr(self, path):
+        _, file_extension = os.path.splitext(path)
+        first_frame, last_frame = self.get_first_last_frames(
+            os.path.dirname(path), file_extension
+        )
+
+        # generate tmp file
+        filename = self.generate_tmp_file()
+        tmp_mov = os.path.join(
+            os.path.dirname(filename), os.path.basename(filename) + ".mov"
+        )
+        tmp_mov = tmp_mov.replace("\\", "/")
+        result = self._core_media.convertMedia(path, first_frame, tmp_mov)
+
+        if "Conversion failed" in result[1]:
+            msg = "{}\n\nMissing Channel RGB for file {}.\nPlease check your file, rerender with right RGB channels " \
+                  "and republish\n".format("\n".join(result), path)
+            raise ValueError(msg)
+
+        return tmp_mov
+
+    @err_catcher(name=__name__)
+    def process_custom_ffmpeg(self, argList):
+        ffmpeg_path = self._core_media.getFFmpeg(validate=True)
+
+        argList.insert(0, ffmpeg_path)
+        argList = [arg.replace("\\", "/") for arg in argList]
+
+        try:
+            nProc = subprocess.Popen(
+                argList, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
+            )
+            stdout, stderr = nProc.communicate()  # Attend la fin du processus
+
+            try:
+                stdout_decoded = stdout.decode("utf-8", errors="ignore")
+                stderr_decoded = stderr.decode("utf-8", errors="ignore")
+            except UnicodeDecodeError:
+                stdout_decoded = stdout.decode("latin1", errors="ignore")
+                stderr_decoded = stderr.decode("latin1", errors="ignore")
+
+            if nProc.returncode != 0:
+                raise RuntimeError(
+                    f"FFmpeg failed with code {nProc.returncode}\n"
+                    f"Command: {' '.join(argList)}\n"
+                    f"Error: {stderr_decoded}"
+                )
+            return stdout_decoded, stderr_decoded
+        except Exception as e:
+            raise RuntimeError(f"Error running FFmpeg command: {str(e)}")
+
+    def _process_custom_ffmpeg(self, argList):
+        ffmpeg_path = self._core_media.getFFmpeg(validate=True)
+        argList.insert(0, ffmpeg_path)
         nProc = subprocess.Popen(
             argList, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
         )
-
+        nProc.wait()
         result = nProc.communicate()
+
         if sys.version[0] == "3":
             result = [x.decode("utf-8", "ignore") for x in result]
-        logger.info(result)
-
         return result
+
+    def generate_tmp_file(self):
+        _, filename = tempfile.mkstemp(prefix="mov")
+        return filename
+
+    def _generate_concat_file(self, folder, extension):
+        tmp_filename = self.generate_tmp_file()
+        filename = os.path.basename(tmp_filename)
+        output_txt = os.path.join(
+            os.path.dirname(tmp_filename), "{}List.txt".format(filename)
+        )
+        # output_txt = output_txt.replace("\\", "/")
+
+        files = sorted([f for f in os.listdir(folder) if f.endswith(extension)])
+        with open(output_txt, "w") as f:
+            for file in files:
+                file_path = os.path.join(folder, file).replace("\\", "/")
+                f.write(f"file '{file_path}'\n")
+
+        return output_txt

@@ -16,10 +16,14 @@ SWANSIDE_DIR = os.path.dirname(os.path.dirname(__file__))
 EXT_MODULES_PATHS = os.path.join(SWANSIDE_DIR, "ExternalModules")
 sys.path.append(EXT_MODULES_PATHS)
 
+## SWANSIDE PLUGIN
 import utils
 import constants
 from customs.media import Media
+from swan_kitsu.kitsuPublisher import Publisher
 from swan_monkey_path import SwanSideMonkeyPatch
+from customs.publisher_ui import SwanSidePublisher
+## END SWANSIDE PLUGIN
 
 from PrismUtils.Decorators import err_catcher_plugin as err_catcher
 
@@ -54,21 +58,32 @@ class Prism_SwanSidePlugins_Functions(object):
         monkey_path = SwanSideMonkeyPatch(core, plugin)
         monkey_path.run()
 
-        self.core.registerCallback(
-            "onSetProjectStartup", self.onSetProjectStartup, plugin=self.plugin
-        )
+        # self.core.registerCallback(
+        #     "onSetProjectStartup", self.onSetProjectStartup, plugin=self.plugin
+        # )
         self.core.registerCallback(
             "onProjectBrowserStartup", self.onProjectBrowserStartup, plugin=self.plugin
         )
 
+        user_pref_path = core.getUserPrefConfigPath()
+        config_user_dict = self.core.configs.readJson(user_pref_path)
+        config_prod_dict = self.core.configs.readJson(config_user_dict.get("globals").get("current project"))
+        prjName = config_prod_dict.get("globals").get("project_name")
+
+        self._media = Media(self.core)
+        self._publisher = Publisher(prjName)
+
         if self.core.requestedApp == "Nuke":
             from swan_nuke.swansideNuke import SwanSideNukePlugins
-            self.media = Media()
             self.swanside_nuke = SwanSideNukePlugins(self, core, plugin)
 
         elif self.core.requestedApp == "Blender":
             from swan_blender.swansideBlender import SwanSideBlenderPlugins
             self.swanside_blender = SwanSideBlenderPlugins(self, core, plugin)
+
+    @property
+    def media(self):
+        return self._media
 
     @err_catcher(name=__name__)
     def onSetProjectStartup(self, origin):
@@ -93,9 +108,7 @@ class Prism_SwanSidePlugins_Functions(object):
 
         if self.core.requestedApp == "Standalone":
             self._updaterSwansideScripts(origin)
-            # self._createShotsFolderAtStartup()
-
-        # self._saveShotsAssetsToPipelineJson()
+            # self._createShotsAssetsFolderAtStartup()
 
     @err_catcher(name=__name__)
     def get_assets(self):
@@ -343,30 +356,51 @@ class Prism_SwanSidePlugins_Functions(object):
         _process(shots_2d, "Shots", False)
         return data
 
+    @err_catcher(name=__name__)
+    def publisherUI(self):
+        ui = SwanSidePublisher(self)
+        ui.show()
+        ui.exec_()
+
     # PRIVATES
 
     @err_catcher(name=__name__)
-    def _createShotsFolderAtStartup(self):
+    def _createShotsAssetsFolderAtStartup(self):
         if not hasattr(self.core, "projectPath"):
             return
 
-        prod_path = self.core.projectPath
-        configPath = self.core.configs.getConfigPath("project")
-        data = self.core.getConfig(configPath=configPath)
-        csv_shot_path = data.get(self.CSV_SHOTS)
-        csv_asset_path = data.get(self.CSV_ASSETS)
+        self._create_shots_folder()
+        self._create_assets_folder()
+        self._saveShotsAssetsToPipelineJson()
 
-        if not csv_shot_path:
-            logger.info("No Shots csv path found. please had it to {} to load all shots".format(prod_path))
-        else:
-            self._create_shots_folder(csv_shot_path)
+    def _create_shots_folder(self):
 
-        if not csv_asset_path:
-            logger.info("No Assets csv path found. please had it to {} to load all shots".format(prod_path))
-        else:
-            self._create_assets_folder(csv_asset_path)
+        for shot in self._publisher.get_all_shots():
+            entity = {
+                "sequence": shot.split("_")[0],
+                "shot": shot,
+            }
+            shot_path = self.core.projects.getResolvedProjectStructurePath(
+                "shots", entity
+            )
+            framerange = [0, 0]
+            if not os.path.exists(shot_path):
+                self.core.entities.createShot(entity, framerange)
 
-    def _create_assets_folder(self, csv_path):
+    def _create_assets_folder(self):
+        for asset in self._publisher.get_all_assets():
+            name = asset.get("name")
+            entity = {
+                "entityType": "asset",
+                "shot": name,
+            }
+            asset_path = self.core.projects.getResolvedProjectStructurePath(
+                "assets", entity
+            )
+            if not os.path.exists(asset_path):
+                self.core.entities.createAsset(entity)
+
+    def _create_assets_folder_from_csv(self, csv_path):
         logger.info("Load csv:  {}".format(csv_path))
         from csv_parser import CSVParser
         _parser = CSVParser(csv_path)
@@ -385,7 +419,7 @@ class Prism_SwanSidePlugins_Functions(object):
 
         _parser.unset_env()
 
-    def _create_shots_folder(self, csv_path):
+    def _create_shots_folder_from_csv(self, csv_path):
         logger.info("Load csv:  {}".format(csv_path))
         from csv_parser import CSVParser
         _parser = CSVParser(csv_path)
@@ -444,6 +478,7 @@ class Prism_SwanSidePlugins_Functions(object):
             tools = origin.myMenu.addMenu("Load CSVs")
             tools.addAction("Load Shots csv..", lambda: self._load_csv_path(isAsset=False))
             tools.addAction("Load Assets csv..", lambda: self._load_csv_path(isAsset=True))
+            origin.myMenu.addAction("Publish to Kitsu..", lambda: self.publisherUI())
             origin.menubar.addMenu(origin.myMenu)
 
         if swan_updatePrism.has_to_run():
@@ -460,9 +495,9 @@ class Prism_SwanSidePlugins_Functions(object):
         if isAsset:
             data[self.CSV_ASSETS] = file_path
             self.core.configs.writeConfig(configPath, data)
-            self._create_assets_folder(file_path)
+            self._create_assets_folder_from_csv(file_path)
         else:
             data[self.CSV_SHOTS] = file_path
             self.core.configs.writeConfig(configPath, data)
-            self._create_shots_folder(file_path)
+            self._create_shots_folder_from_csv(file_path)
 
