@@ -13,6 +13,7 @@ from swan_nuke.import_aovs_ui import Ui_MainWindow
 
 
 # C:\Users\User\AppData\Local\Programs\Python\Python37\Scripts\pyside2-uic.exe C:\ProgramData\Prism2\plugins\Custom\SwanSidePlugins\Scripts\custom_plugin\import_aovs_ui.ui -o C:\ProgramData\Prism2\plugins\Custom\SwanSidePlugins\Scripts\custom_plugin\import_aovs_ui.py
+# C:\Users\User\AppData\Local\Programs\Python\Python39\Scripts\pyside2-uic.exe D:\Desk\untitled.ui -o D:\Desk\untitled.py
 
 def get_version_from_filename(filename):
     version_pattern = r'_v(\d{4})_'

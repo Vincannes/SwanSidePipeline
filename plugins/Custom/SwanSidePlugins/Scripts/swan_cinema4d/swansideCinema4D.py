@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 from PrismUtils.Decorators import err_catcher_plugin as err_catcher
 
 
-class SwanSideBlenderPlugins(object):
+class SwanSideCinema4DPlugins(object):
 
     @err_catcher(name=__name__)
     def __init__(self, parent, core, plugin):

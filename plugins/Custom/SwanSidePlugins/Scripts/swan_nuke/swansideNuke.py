@@ -14,8 +14,8 @@ logger = logging.getLogger(__name__)
 from PrismUtils.Decorators import err_catcher_plugin as err_catcher
 
 from swan_exceptions import PublishNukeFailed
-from swan_nuke.nukePublisherUI import SwanSideNukePublisher
-from swan_nuke.swanSideImportNukeLayersUi import ImportNukeLayers
+# from swan_nuke.nukePublisherUI import SwanSideNukePublisher
+# from swan_nuke.swanSideImportNukeLayersUi import ImportNukeLayers
 
 
 class SwanSideNukePlugins(object):
@@ -27,8 +27,8 @@ class SwanSideNukePlugins(object):
         self.parent = parent
         self.plugin = plugin
 
-        self._read_manager = ImportNukeLayers
-        self.ui_publisher = SwanSideNukePublisher
+        # self._read_manager = ImportNukeLayers
+        # self.ui_publisher = SwanSideNukePublisher
 
         _installLocPath = self.core.integration.installLocPath
         self._installLocData = self.core.configs.readYaml(_installLocPath).get("Nuke")
