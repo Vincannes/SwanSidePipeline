@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 
 IMG_EXTENSIONS = ["exr", "png", "jpg", "dpx"]
 
+
 class SwanSidePublisher(QDialog):
 
     def __init__(self, parent=None):

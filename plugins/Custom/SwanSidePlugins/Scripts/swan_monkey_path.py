@@ -23,7 +23,12 @@ class SwanSideMonkeyPatch(object):
         self.plugin = plugin
 
     def run(self):
+        projectManag = self.core.getPlugin("ProjectManagement")
         self.core.plugins.monkeyPatch(self.core.projects.changeProject, self.changeProject, self, force=True)
+        self.core.plugins.monkeyPatch(self.core.projects.getShotDepartments, self.getShotDepartments, self, force=True)
+        self.core.plugins.monkeyPatch(projectManag.getShotDepartments, self.getShotDepartments, self, force=True)
+        self.core.plugins.monkeyPatch(self.core.projects.getAssetDepartments, self.getAssetDepartments, self, force=True)
+        self.core.plugins.monkeyPatch(projectManag.getAssetDepartments, self.getAssetDepartments, self, force=True)
 
     @err_catcher(name=__name__)
     def changeProject(self, configPath=None, openUi="", settingsTab=None, settingsType=None, unset=False):
@@ -346,3 +351,39 @@ class SwanSideMonkeyPatch(object):
 
         QApplication.setQuitOnLastWindowClosed(quitOnLastWindowClosed)
         return self.core.projectPath
+
+    @err_catcher(name=__name__)
+    def getAssetDepartments(self, configData=None):
+        deps = self.core.getConfig(
+            "globals", "departments_asset", configPath=self.core.prismIni
+        )
+        try:
+            deps = list(deps)
+        except:
+            deps = []
+
+        if not deps:
+            deps = self.core.projects.getProjectDepartments()
+            if deps:
+                deps = [{"name": d[1], "abbreviation": d[0], "defaultTasks": [d[1]]} for d in list(deps.items())]
+                self.core.projects.setDepartments("asset", deps, configData)
+
+        return deps
+
+    @err_catcher(name=__name__)
+    def getShotDepartments(self, configData=None):
+        deps = self.core.getConfig(
+            "globals", "departments_shot", configPath=self.core.prismIni
+        )
+        try:
+            deps = list(deps)
+        except:
+            deps = []
+
+        if not deps:
+            deps = self.core.projects.getProjectDepartments()
+            if deps:
+                deps = [{"name": d[1], "abbreviation": d[0], "defaultTasks": [d[1]]} for d in list(deps.items())]
+                self.core.projects.setDepartments("shot", deps, configData)
+
+        return deps
