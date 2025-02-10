@@ -101,7 +101,7 @@ class Prism_SwanSidePlugins_Functions(object):
         mount_point = utils.is_mount_accessible(constants.SERVEUR_URL)
         if not inSwansideNAS and not mount_point:
             self.core.popup(
-                "Vous n'etes pas connecté au serveur NAS.\n\n" \
+                "Vous n'etes pas connecté au serveur NAS.\n\n"\
                 "Connectez vous au serveur {}.".format(constants.SERVEUR_NAS_URL)
             )
 
