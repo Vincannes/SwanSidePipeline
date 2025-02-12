@@ -6,7 +6,6 @@ import sys
 import logging
 import argparse
 import importlib
-import configparser
 from pprint import pprint
 
 from PrismUtils.Decorators import err_catcher_plugin as err_catcher
@@ -17,28 +16,22 @@ PUBLISHER_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 EXT_MODULES_PATHS = os.path.join(PUBLISHER_DIR, "ExternalModules")
 sys.path.append(EXT_MODULES_PATHS)
 
-CONF_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config.conf")
-
 
 class Publisher(object):
 
-    def __init__(self, project_code):
-        config = configparser.ConfigParser()
-        config.read(CONF_FILE)
+    def __init__(self, project_code, kitsu):
+    # def __init__(self, project_code, url, password, mail):
 
-        url = config['credentials']['url']
-        mail = config['credentials']['email']
-        password = config['credentials']['password']
-
-        os.environ["PRISM_KITSU_URL"] = url
-        os.environ["PRISM_KITSU_EMAIL"] = mail
-        os.environ["PRISM_KITSU_PASSWORD"] = password
-        url = url.strip("\\/") + "/api"
-
-        self._gazu = importlib.import_module("gazu")
-        self._gazu.client.set_host(url)
-        self._gazu.log_in(mail, password)
-
+        # os.environ["PRISM_KITSU_URL"] = url
+        # os.environ["PRISM_KITSU_EMAIL"] = mail
+        # os.environ["PRISM_KITSU_PASSWORD"] = password
+        # url = url.strip("\\/") + "/api"
+        #
+        # self._gazu = importlib.import_module("gazu")
+        # self._gazu.client.set_host(url)
+        # self._gazu.log_in(mail, password)
+        self._kitsu = kitsu
+        self._gazu = self._kitsu.gazu
         self._project = self._gazu.project.get_project_by_name(project_code)
 
     @property

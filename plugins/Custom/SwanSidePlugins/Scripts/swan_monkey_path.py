@@ -25,10 +25,11 @@ class SwanSideMonkeyPatch(object):
     def run(self):
         projectManag = self.core.getPlugin("ProjectManagement")
         self.core.plugins.monkeyPatch(self.core.projects.changeProject, self.changeProject, self, force=True)
-        self.core.plugins.monkeyPatch(self.core.projects.getShotDepartments, self.getShotDepartments, self, force=True)
-        self.core.plugins.monkeyPatch(projectManag.getShotDepartments, self.getShotDepartments, self, force=True)
-        self.core.plugins.monkeyPatch(self.core.projects.getAssetDepartments, self.getAssetDepartments, self, force=True)
-        self.core.plugins.monkeyPatch(projectManag.getAssetDepartments, self.getAssetDepartments, self, force=True)
+        if projectManag:
+            self.core.plugins.monkeyPatch(self.core.projects.getShotDepartments, self.getShotDepartments, self, force=True)
+            self.core.plugins.monkeyPatch(projectManag.getShotDepartments, self.getShotDepartments, self, force=True)
+            self.core.plugins.monkeyPatch(self.core.projects.getAssetDepartments, self.getAssetDepartments, self, force=True)
+            self.core.plugins.monkeyPatch(projectManag.getAssetDepartments, self.getAssetDepartments, self, force=True)
 
     @err_catcher(name=__name__)
     def changeProject(self, configPath=None, openUi="", settingsTab=None, settingsType=None, unset=False):

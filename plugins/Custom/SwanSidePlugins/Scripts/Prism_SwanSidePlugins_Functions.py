@@ -19,6 +19,7 @@ sys.path.append(EXT_MODULES_PATHS)
 ## SWANSIDE PLUGIN
 import utils
 import constants
+from swan_exceptions import *
 from customs.media import Media
 from swan_kitsu.kitsuPublisher import Publisher
 from swan_monkey_path import SwanSideMonkeyPatch
@@ -27,19 +28,7 @@ from customs.publisher_ui import SwanSidePublisher
 
 from PrismUtils.Decorators import err_catcher_plugin as err_catcher
 
-DEBUG = os.environ.get("SWANSIDE_TD", False)
-
-
-def generate_pattern(file_list):
-    first_file = file_list[0]
-    dir_path, file_name = os.path.split(first_file)
-    base_name, ext = os.path.splitext(file_name)
-    parts = base_name.split('.')
-    frame_number = parts[-1]
-    base_pattern = '.'.join(parts[:-1])
-
-    pattern = os.path.join(dir_path, f"{base_pattern}.%04d.{ext[1:]}")
-    return pattern
+DEBUG = False#os.environ.get("SWANSIDE_TD", False)
 
 
 class Prism_SwanSidePlugins_Functions(object):
@@ -57,9 +46,7 @@ class Prism_SwanSidePlugins_Functions(object):
         if not self.isActive():
             return
 
-        monkey_path = SwanSideMonkeyPatch(core, plugin)
-        monkey_path.run()
-
+        self._publisher = None
         if not DEBUG:
             self.core.registerCallback(
                 "onSetProjectStartup", self.onSetProjectStartup, plugin=self.plugin
@@ -74,10 +61,10 @@ class Prism_SwanSidePlugins_Functions(object):
         self.prod_config_path = config_user_dict.get("globals").get("current project")
         self.config_prod_dict = self.core.configs.readJson(self.prod_config_path)
 
-        # if prod exist
-        if self.config_prod_dict:
-            prjName = self.config_prod_dict.get("globals").get("project_name")
-            self._publisher = Publisher(prjName)
+        self.register()
+
+        monkey_path = SwanSideMonkeyPatch(core, plugin)
+        monkey_path.run()
 
         if self.core.requestedApp == "Nuke":
             from swan_nuke.swansideNuke import SwanSideNukePlugins
@@ -90,6 +77,18 @@ class Prism_SwanSidePlugins_Functions(object):
         elif self.core.requestedApp == "Cinema4D":
             from swan_cinema4d.swansideCinema4D import SwanSideCinema4DPlugins
             self.swan_cinema4d = SwanSideCinema4DPlugins(self, core, plugin)
+
+    @err_catcher(name=__name__)
+    def register(self):
+        self.kitsuPlugin = self.core.getPlugin("Kitsu")
+        if not self.kitsuPlugin:
+            self.core.registerCallback("pluginLoaded", self.onPluginLoaded, plugin=self.plugin)
+            return
+
+    @err_catcher(name=__name__)
+    def onPluginLoaded(self, plugin):
+        if plugin.pluginName == "Kitsu":
+            self.register()
 
     @property
     def media(self):
@@ -117,10 +116,13 @@ class Prism_SwanSidePlugins_Functions(object):
         """
         if self.core.requestedApp == "Standalone":
             self._updaterSwansideScripts(origin)
-            self.force_tasks_departments_from_kitsu()
+            # if self._publisher:
+            # self.force_tasks_departments_from_kitsu()
 
     @err_catcher(name=__name__)
     def force_tasks_departments_from_kitsu(self):
+        prjName = self.config_prod_dict.get("globals").get("project_name")
+        self._publisher = Publisher(prjName, self.kitsuPlugin)
         shots = self._publisher.get_all_shots()
         assets = self._publisher.get_all_assets()
 
@@ -331,7 +333,7 @@ class Prism_SwanSidePlugins_Functions(object):
                     continue
 
                 files = self.core.mediaProducts.getFilesFromContext(aovs[0])
-                all_files.append(generate_pattern(files))
+                all_files.append(utils.generate_pattern(files))
         return all_files
 
     @err_catcher(name=__name__)
@@ -380,7 +382,6 @@ class Prism_SwanSidePlugins_Functions(object):
                 for path in paths:
                     path_data = self.get_fields_from_path(path)
                     task = path_data.get("task")
-                    # status = self._publisher.last_status_task(task, shot_name, is_asset)
                     version = path_data.get("version")
                     data[data_key][shot_name].append((path, task, "cmp", version))
 
@@ -515,6 +516,7 @@ class Prism_SwanSidePlugins_Functions(object):
             # tools.addAction("Load Shots csv..", lambda: self._load_csv_path(isAsset=False))
             # tools.addAction("Load Assets csv..", lambda: self._load_csv_path(isAsset=True))
             swan_menu.addAction("Publish to Kitsu..", lambda: self.publisherUI())
+            swan_menu.addAction("Force Task from Kitsu", self.force_tasks_departments_from_kitsu)
             origin.menubar.addMenu(swan_menu)
             origin.myMenu = swan_menu
 
