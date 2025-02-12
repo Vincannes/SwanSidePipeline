@@ -20,16 +20,6 @@ sys.path.append(EXT_MODULES_PATHS)
 class Publisher(object):
 
     def __init__(self, project_code, kitsu):
-    # def __init__(self, project_code, url, password, mail):
-
-        # os.environ["PRISM_KITSU_URL"] = url
-        # os.environ["PRISM_KITSU_EMAIL"] = mail
-        # os.environ["PRISM_KITSU_PASSWORD"] = password
-        # url = url.strip("\\/") + "/api"
-        #
-        # self._gazu = importlib.import_module("gazu")
-        # self._gazu.client.set_host(url)
-        # self._gazu.log_in(mail, password)
         self._kitsu = kitsu
         self._gazu = self._kitsu.gazu
         self._project = self._gazu.project.get_project_by_name(project_code)
