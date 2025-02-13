@@ -146,6 +146,7 @@ class SwanSidePublisher(QDialog):
 
     @err_catcher(name=__name__)
     def _publishing(self):
+        self.publishBtn.setText("Publishing.....")
         description = self.textBrowser.toPlainText()
         path = self.lineEdit.text()
         self.thread = PublishingThread(
@@ -162,6 +163,7 @@ class SwanSidePublisher(QDialog):
     def _on_publishing_finished(self, result):
         logger.info(result)
         QMessageBox.information(None, "Publish Completed", f"Publishing completed:\n{result}")
+        self.publishBtn.setText("Publish")
         self._show_published(result)
 
     def _on_publishing_error(self, exception):

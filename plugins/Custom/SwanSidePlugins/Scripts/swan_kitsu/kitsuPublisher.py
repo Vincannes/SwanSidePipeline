@@ -41,11 +41,16 @@ class Publisher(object):
         return sequence
 
     def get_shot(self, code, sequence=None):
+        shot = None
         if not sequence:
-            raise ValueError("Need an Sequence")
+            shots = self.get_all_shots()
+            for kit_shot in shots:
+                if kit_shot.get("name") == code:
+                    shot = kit_shot
+                    break
         elif isinstance(sequence, str):
             sequence = self.get_sequence(sequence)
-        shot = self._gazu.shot.get_shot_by_name(sequence, code)
+            shot = self._gazu.shot.get_shot_by_name(sequence, code)
         return shot
 
     def get_asset(self, code):
@@ -60,7 +65,7 @@ class Publisher(object):
 
     def get_task(self, task_name, shot_name, entity="shot"):
         if entity == "shot":
-            shot_asset = self.get_shot(shot_name, shot_name.split("_")[0])
+            shot_asset = self.get_shot(shot_name)
         else:
             shot_asset = self.get_asset(shot_name)
         tasks = self.get_tasks(shot_asset, entity)

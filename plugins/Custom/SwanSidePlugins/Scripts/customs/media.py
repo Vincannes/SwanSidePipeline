@@ -5,10 +5,8 @@ import os
 import re
 import sys
 import logging
-import platform
 import tempfile
 import subprocess
-from collections import OrderedDict
 
 from PrismUtils.Decorators import err_catcher
 

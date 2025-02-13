@@ -5,6 +5,7 @@ import re
 import os
 import sys
 import logging
+import importlib
 from pprint import pprint
 
 from qtpy.QtCore import *
@@ -116,13 +117,17 @@ class Prism_SwanSidePlugins_Functions(object):
         """
         if self.core.requestedApp == "Standalone":
             self._updaterSwansideScripts(origin)
-            # if self._publisher:
-            # self.force_tasks_departments_from_kitsu()
+            if self.kitsuPlugin:
+                prjName = self.config_prod_dict.get("globals").get("project_name")
+                self._publisher = Publisher(prjName, self.kitsuPlugin)
 
     @err_catcher(name=__name__)
     def force_tasks_departments_from_kitsu(self):
-        prjName = self.config_prod_dict.get("globals").get("project_name")
-        self._publisher = Publisher(prjName, self.kitsuPlugin)
+        if not self._publisher and not self.kitsuPlugin:
+            self.core.popup(
+                "You need to install Kitsu plugin to process this."
+            )
+            return
         shots = self._publisher.get_all_shots()
         assets = self._publisher.get_all_assets()
 
@@ -393,7 +398,12 @@ class Prism_SwanSidePlugins_Functions(object):
 
     @err_catcher(name=__name__)
     def publisherUI(self):
-        ui = SwanSidePublisher(self)
+        if not self._publisher and not self.kitsuPlugin:
+            self.core.popup(
+                "You need to install Kitsu plugin to process this."
+            )
+            return
+        ui = SwanSidePublisher(parent=self)
         ui.show()
         ui.exec_()
 
@@ -516,7 +526,7 @@ class Prism_SwanSidePlugins_Functions(object):
             # tools.addAction("Load Shots csv..", lambda: self._load_csv_path(isAsset=False))
             # tools.addAction("Load Assets csv..", lambda: self._load_csv_path(isAsset=True))
             swan_menu.addAction("Publish to Kitsu..", lambda: self.publisherUI())
-            swan_menu.addAction("Force Task from Kitsu", self.force_tasks_departments_from_kitsu)
+            swan_menu.addAction("Synch Project Task from Kitsu", self.force_tasks_departments_from_kitsu)
             origin.menubar.addMenu(swan_menu)
             origin.myMenu = swan_menu
 
