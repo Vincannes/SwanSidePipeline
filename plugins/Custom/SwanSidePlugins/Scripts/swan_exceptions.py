@@ -8,3 +8,9 @@ class PublishNukeFailed(Exception):
         self.path = path
         self.message = message
         super().__init__(self.message)
+
+
+class MissingPluginException(Exception):
+
+    def __init__(self, pluginName):
+        super().__init__("Missing plugin {}. Is it installed ?".format(pluginName))
