@@ -19,9 +19,15 @@ sys.path.append(EXT_MODULES_PATHS)
 
 class Publisher(object):
 
-    def __init__(self, project_code, kitsu):
-        self._kitsu = kitsu
-        self._gazu = self._kitsu.gazu
+    def __init__(self, project_code, kitsu=None, url="", mail="", password=""):
+        if kitsu:
+            self._kitsu = kitsu
+            self._gazu = self._kitsu.gazu
+        else:
+            url = url.strip("\\/") + "/api"
+            self._gazu = importlib.import_module("gazu")
+            self._gazu.client.set_host(url)
+            self._gazu.log_in(mail, password)
         self._project = self._gazu.project.get_project_by_name(project_code)
 
     @property

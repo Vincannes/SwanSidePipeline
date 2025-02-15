@@ -21,9 +21,10 @@ sys.path.append(EXT_MODULES_PATHS)
 import utils
 import constants
 from swan_exceptions import *
-from customs.media import Media
 from swan_kitsu.kitsuPublisher import Publisher
 from swan_monkey_path import SwanSideMonkeyPatch
+from customs.media import Media
+from customs.login_ui import SwanSideLoginUI
 from customs.publisher_ui import SwanSidePublisher
 ## END SWANSIDE PLUGIN
 
@@ -79,6 +80,23 @@ class Prism_SwanSidePlugins_Functions(object):
             from swan_cinema4d.swansideCinema4D import SwanSideCinema4DPlugins
             self.swan_cinema4d = SwanSideCinema4DPlugins(self, core, plugin)
 
+    @property
+    def media(self):
+        return self._media
+
+    @property
+    def publisher(self):
+        return self._publisher
+
+    @err_catcher(name=__name__)
+    def setPublisher(self, kitsu=None, mail=None, password=None):
+        prjName = self.config_prod_dict.get("globals").get("project_name")
+        if kitsu:
+            self._publisher = Publisher(prjName, kitsu=self.kitsuPlugin)
+        elif mail and password:
+            url = utils.readConfig(constants.CONF_FILE).get("credentials", "url")
+            self._publisher = Publisher(prjName, mail=mail, password=password, url=url)
+
     @err_catcher(name=__name__)
     def register(self):
         self.kitsuPlugin = self.core.getPlugin("Kitsu")
@@ -90,10 +108,6 @@ class Prism_SwanSidePlugins_Functions(object):
     def onPluginLoaded(self, plugin):
         if plugin.pluginName == "Kitsu":
             self.register()
-
-    @property
-    def media(self):
-        return self._media
 
     @err_catcher(name=__name__)
     def onSetProjectStartup(self, origin):
@@ -118,8 +132,7 @@ class Prism_SwanSidePlugins_Functions(object):
         if self.core.requestedApp == "Standalone":
             self._updaterSwansideScripts(origin)
             if self.kitsuPlugin:
-                prjName = self.config_prod_dict.get("globals").get("project_name")
-                self._publisher = Publisher(prjName, self.kitsuPlugin)
+                self.setPublisher(kitsu=True)
 
     @err_catcher(name=__name__)
     def force_tasks_departments_from_kitsu(self):
@@ -399,10 +412,17 @@ class Prism_SwanSidePlugins_Functions(object):
     @err_catcher(name=__name__)
     def publisherUI(self):
         if not self._publisher and not self.kitsuPlugin:
-            self.core.popup(
-                "You need to install Kitsu plugin to process this."
-            )
-            return
+            user_conf = self._get_user_config_file()
+            if not os.path.exists(user_conf):
+                login_ui = SwanSideLoginUI(user_conf)
+                login_ui.show()
+                login_ui.exec_()
+
+            config = utils.readConfig(user_conf)
+            mail = config.get("credentials", "mail")
+            password = config.get("credentials", "password")
+            self.setPublisher(kitsu=None, mail=mail, password=password)
+
         ui = SwanSidePublisher(parent=self)
         ui.show()
         ui.exec_()
@@ -550,3 +570,7 @@ class Prism_SwanSidePlugins_Functions(object):
             self.core.configs.writeConfig(configPath, data)
             self._create_shots_folder_from_csv(file_path)
 
+    def _get_user_config_file(self):
+        user_dir = os.path.dirname(self.core.userini)
+        user_conf_file = os.path.join(user_dir, constants.CONFIG_FILE_NAME)
+        return user_conf_file

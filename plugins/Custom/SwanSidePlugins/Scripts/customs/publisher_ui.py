@@ -3,22 +3,26 @@
 # copyright	:Vincannes
 import os
 import sys
+import constants
 import logging
 
 try:
     from qtpy.QtCore import *
     from qtpy.QtGui import *
     from qtpy.QtWidgets import *
+    from qtpy.QtSvg import *
+    from qtpy.QtSvgWidgets import *
 except:
     from PySide2.QtWidgets import *
     from PySide2.QtCore import *
     from PySide2.QtGui import *
+    from PySide2.QtSvg import *
 
 from PrismUtils.Decorators import err_catcher_plugin as err_catcher
 
 logger = logging.getLogger(__name__)
 
-IMG_EXTENSIONS = ["exr", "png", "jpg", "dpx"]
+IMG_EXTENSIONS = ["png", "jpg", "dpx", "exr"]
 
 
 class SwanSidePublisher(QDialog):
@@ -26,12 +30,12 @@ class SwanSidePublisher(QDialog):
     def __init__(self, parent=None):
         super().__init__(None)
         self._parent = parent
-        self._media = parent._media
-        self._publisher = parent._publisher
+        self._media = parent.media
+        self._publisher = parent.publisher
 
         self.setupUi()
         self.set_connections()
-        self.setWindowTitle('SwanSide SwanSidePlugins: ')
+        self.setWindowTitle('SwanSide SwanSidePlugins')
 
     def setupUi(self):
         self.gridLayout = QGridLayout(self)
@@ -87,6 +91,13 @@ class SwanSidePublisher(QDialog):
         self.publishBtn = QPushButton(self)
         self.gridLayout.addWidget(self.publishBtn, 2, 0, 1, 2)
 
+        self.progressContainer = QVBoxLayout()
+        self.progressContainer.setAlignment(Qt.AlignCenter)
+        self.progressBar = BusyIndicator(self)
+        self.progressBar.setFixedSize(80, 80)
+        self.progressContainer.addWidget(self.progressBar)
+        self.gridLayout.addLayout(self.progressContainer, 3, 0, 1, 2, alignment=Qt.AlignCenter)
+
         self.label.setText("Path :")
         self.btFile.setText("Open")
         self.label_2.setText("Description :")
@@ -128,16 +139,17 @@ class SwanSidePublisher(QDialog):
             tmp_png = os.path.join(
                 os.path.dirname(filename), os.path.basename(filename) + ".png"
             )
+            file_path = file_path.replace("&", "^&")
             cmds = [
                 "-y", "-i",
-                file_path,
-                tmp_png
+                f"{file_path}",
+                f"{tmp_png}"
             ]
             try:
-                result = self._media.process_custom_ffmpeg(cmds)
+                self._media.process_custom_ffmpeg(cmds)
                 file_path = tmp_png
-            except RuntimeError:
-                self.image.setText("Impossible de charger l'image")
+            except RuntimeError as e:
+                self.image.setText("Impossible de charger l'image:\n{}".format(e))
 
         # set Thumbnail
         pixmap = QPixmap(file_path)
@@ -149,6 +161,8 @@ class SwanSidePublisher(QDialog):
         self.publishBtn.setText("Publishing.....")
         description = self.textBrowser.toPlainText()
         path = self.lineEdit.text()
+        self.progressBar.show()
+
         self.thread = PublishingThread(
             parent=self._parent,
             path=path,
@@ -164,7 +178,7 @@ class SwanSidePublisher(QDialog):
         logger.info(result)
         QMessageBox.information(None, "Publish Completed", f"Publishing completed:\n{result}")
         self.publishBtn.setText("Publish")
-        self._show_published(result)
+        self.close()
 
     def _on_publishing_error(self, exception):
         QMessageBox.critical(None, "Publish Failed", f"Error during publishing:\n{str(exception)}")
@@ -216,6 +230,32 @@ class PublishingThread(QThread):
             logger.error(f"Failed: {str(e)}")
             self.error.emit(e)
 
+
+class BusyIndicator(QWidget):
+    def __init__(self, parent=None):
+        super(BusyIndicator, self).__init__(parent)
+        self.resize(80, 80)
+        layout = QHBoxLayout()
+        svg = QSvgWidget()
+        icon_path = os.path.join(
+            os.path.dirname(constants.SCRIPTS_DIR),
+            "resources", "tail-spin.svg"
+        )
+        svg.load(icon_path)
+        layout.addWidget(svg)
+        self.setLayout(layout)
+
+        self.hide()
+
+    def show(self):
+        self.move(self.parent().rect().center() - self.rect().center())
+        super(BusyIndicator, self).show()
+
+    def hide(self):
+        super(BusyIndicator, self).hide()
+
+    def paintEvent(self, event):
+        pass
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
