@@ -150,18 +150,22 @@ class Prism_SwanSidePlugins_Functions(object):
                 task_data = {"abbreviation": task.get("short_name"),
                              "defaultTasks": [task.get("name")],
                              "name": task.get("name")}
+                if task_data in departments_shot:
+                    continue
                 departments_shot.append(task_data)
 
-        departments_asset = []
+        departments_assets = []
         for asset in assets:
             for task in self._publisher.get_tasks(asset, entity="asset"):
                 task_data = {"abbreviation": task.get("short_name"),
                              "defaultTasks": [task.get("name")],
                              "name": task.get("name")}
-                departments_asset.append(task_data)
+                if task_data in departments_assets:
+                    continue
+                departments_assets.append(task_data)
 
         self.config_prod_dict["globals"]["departments_shot"] = departments_shot
-        self.config_prod_dict["globals"]["departments_asset"] = departments_asset
+        self.config_prod_dict["globals"]["departments_asset"] = departments_assets
         self.core.configs.writeConfig(self.prod_config_path, self.config_prod_dict)
 
     @err_catcher(name=__name__)
