@@ -94,7 +94,7 @@ class Prism_SwanSidePlugins_Functions(object):
         if kitsu:
             self._publisher = Publisher(prjName, kitsu=self.kitsuPlugin)
         elif mail and password:
-            url = utils.readConfig(constants.CONF_FILE).get("credentials", "url")
+            url = constants.KITSU_URL
             self._publisher = Publisher(prjName, mail=mail, password=password, url=url)
 
     @err_catcher(name=__name__)
