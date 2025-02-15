@@ -6,7 +6,6 @@ import sys
 import logging
 import argparse
 import importlib
-import configparser
 from pprint import pprint
 
 from PrismUtils.Decorators import err_catcher_plugin as err_catcher
@@ -17,28 +16,18 @@ PUBLISHER_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 EXT_MODULES_PATHS = os.path.join(PUBLISHER_DIR, "ExternalModules")
 sys.path.append(EXT_MODULES_PATHS)
 
-CONF_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config.conf")
-
 
 class Publisher(object):
 
-    def __init__(self, project_code):
-        config = configparser.ConfigParser()
-        config.read(CONF_FILE)
-
-        url = config['credentials']['url']
-        mail = config['credentials']['email']
-        password = config['credentials']['password']
-
-        os.environ["PRISM_KITSU_URL"] = url
-        os.environ["PRISM_KITSU_EMAIL"] = mail
-        os.environ["PRISM_KITSU_PASSWORD"] = password
-        url = url.strip("\\/") + "/api"
-
-        self._gazu = importlib.import_module("gazu")
-        self._gazu.client.set_host(url)
-        self._gazu.log_in(mail, password)
-
+    def __init__(self, project_code, kitsu=None, url="", mail="", password=""):
+        if kitsu:
+            self._kitsu = kitsu
+            self._gazu = self._kitsu.gazu
+        else:
+            url = url.strip("\\/") + "/api"
+            self._gazu = importlib.import_module("gazu")
+            self._gazu.client.set_host(url)
+            self._gazu.log_in(mail, password)
         self._project = self._gazu.project.get_project_by_name(project_code)
 
     @property
@@ -58,11 +47,16 @@ class Publisher(object):
         return sequence
 
     def get_shot(self, code, sequence=None):
+        shot = None
         if not sequence:
-            raise ValueError("Need an Sequence")
+            shots = self.get_all_shots()
+            for kit_shot in shots:
+                if kit_shot.get("name") == code:
+                    shot = kit_shot
+                    break
         elif isinstance(sequence, str):
             sequence = self.get_sequence(sequence)
-        shot = self._gazu.shot.get_shot_by_name(sequence, code)
+            shot = self._gazu.shot.get_shot_by_name(sequence, code)
         return shot
 
     def get_asset(self, code):
@@ -77,7 +71,7 @@ class Publisher(object):
 
     def get_task(self, task_name, shot_name, entity="shot"):
         if entity == "shot":
-            shot_asset = self.get_shot(shot_name, shot_name.split("_")[0])
+            shot_asset = self.get_shot(shot_name)
         else:
             shot_asset = self.get_asset(shot_name)
         tasks = self.get_tasks(shot_asset, entity)

@@ -5,10 +5,8 @@ import os
 import re
 import sys
 import logging
-import platform
 import tempfile
 import subprocess
-from collections import OrderedDict
 
 from PrismUtils.Decorators import err_catcher
 
@@ -45,9 +43,6 @@ class Media(object):
     @err_catcher(name=__name__)
     def process_mov_file_from_sequence(self, path):
         _, file_extension = os.path.splitext(path)
-        first_frame, last_frame = self.get_first_last_frames(
-            os.path.dirname(path), file_extension
-        )
 
         # generate tmp file
         filename = self.generate_tmp_file()
@@ -60,14 +55,14 @@ class Media(object):
         )
 
         argList = [
-            "-f", "concat",
-            "-safe", "0",
-            "-i", concat_file,
-            "-c:v", "libx264",
-            "-pix_fmt", "yuv420p",
-            tmp_mov
+            "-f", "concat", "-safe", "0",
+            "-r", "24", "-i",  f"{concat_file}",
+            "-c:v", "libx264", "-pix_fmt", "yuv420p",
+            "-crf", "18",
+            f"{tmp_mov}"
         ]
-        result = self.process_custom_ffmpeg(argList)
+
+        self.process_custom_ffmpeg(argList, useShell=False)
         return tmp_mov
 
     def _old_process_mov_file_from_exr(self, path):
@@ -92,8 +87,8 @@ class Media(object):
         return tmp_mov
 
     @err_catcher(name=__name__)
-    def process_custom_ffmpeg(self, argList):
-        ffmpeg_path = self._core_media.getFFmpeg(validate=True)
+    def process_custom_ffmpeg(self, argList, useShell=True):
+        ffmpeg_path = '{}'.format(self._core_media.getFFmpeg(validate=True))
 
         argList.insert(0, ffmpeg_path)
         argList = [arg.replace("\\", "/") for arg in argList]
@@ -102,7 +97,8 @@ class Media(object):
             nProc = subprocess.Popen(
                 argList, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
             )
-            stdout, stderr = nProc.communicate()  # Attend la fin du processus
+            # nProc.wait()
+            stdout, stderr = nProc.communicate()
 
             try:
                 stdout_decoded = stdout.decode("utf-8", errors="ignore")
@@ -142,9 +138,9 @@ class Media(object):
         tmp_filename = self.generate_tmp_file()
         filename = os.path.basename(tmp_filename)
         output_txt = os.path.join(
-            os.path.dirname(tmp_filename), "{}List.txt".format(filename)
+            os.path.dirname(tmp_filename),
+            "{}_List.txt".format(filename)
         )
-        # output_txt = output_txt.replace("\\", "/")
 
         files = sorted([f for f in os.listdir(folder) if f.endswith(extension)])
         with open(output_txt, "w") as f:
